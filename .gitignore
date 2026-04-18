@@ -1,0 +1,22 @@
+# Spring Boot / Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### IDE ###
+.idea
+.vscode
+*.iws
+*.iml
+*.ipr
+.classpath
+.project
+.settings/
+.factorypath
+
+# MacOS
+.DS_Store
+
+# Loglar
+*.log

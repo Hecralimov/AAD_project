@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  mysql-db:
+    image: mysql:8.0
+    container_name: analytics-mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'aad1'
+      MYSQL_ROOT_PASSWORD: 'admin'
+    ports:
+      - '3306:3306'
+    volumes:
+      # Bu satır, veritabanı yedeğini (init.sql) alıp ilk kurulumda otomatik çalıştırır
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      # Verilerin silinmemesi için kalıcı depolama alanı yaratır
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:
