@@ -1,70 +1,74 @@
 package com.ecommerce.analytics_backend.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
+import java.util.List;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "users") 
-public class User {
+public class User implements UserDetails {
 
     @Id
-    // Because your IDs are strings (UUIDs) and not 1, 2, 3 numbers, we use GenerationType.UUID
-    // This tells Spring to generate a new UUID string if you ever save a brand new user.
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    // Matches the "email" column exactly
     private String email;
 
-    // Maps the database "password_hash" column to the Java "passwordHash" variable
     @Column(name = "password_hash")
     private String passwordHash;
 
-    // Maps the database "role_type" column to the Java "roleType" variable
     @Column(name = "role_type")
-    private String roleType;
+    private String roleType; // Admin, Corporate, Individual
 
-    // Matches the "gender" column exactly
     private String gender;
 
-    // --- Getters and Setters ---
+    // --- UserDetails Methods for Spring Security ---
 
-    public String getId() {
-        return id;
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        // We add "ROLE_" prefix because Spring Security usually expects it for RBAC
+        return List.of(new SimpleGrantedAuthority("ROLE_" + roleType));
     }
 
-    public void setId(String id) {
-        this.id = id;
+    @Override
+    public String getPassword() {
+        return passwordHash; // Tell Spring Security where to find the password
     }
 
-    public String getEmail() {
-        return email;
+    @Override
+    public String getUsername() {
+        return email; // We use email as the username for login
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
     }
 
-    public String getPasswordHash() {
-        return passwordHash;
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
     }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
     }
 
-    public String getRoleType() {
-        return roleType;
-    }
-
-    public void setRoleType(String roleType) {
-        this.roleType = roleType;
-    }
-
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }
