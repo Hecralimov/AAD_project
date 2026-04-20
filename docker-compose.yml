@@ -16,5 +16,27 @@ services:
       # Verilerin silinmemesi için kalıcı depolama alanı yaratır
       - mysql-data:/var/lib/mysql
 
+  backend:
+    build:
+      context: ./backend/analytics-backend
+    container_name: analytics-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/aad1
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=admin
+    depends_on:
+      - mysql-db
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: analytics-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+
 volumes:
   mysql-data:
