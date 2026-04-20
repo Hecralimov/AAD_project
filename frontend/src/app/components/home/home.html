@@ -1,0 +1,70 @@
+<div class="home-container">
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="logo">
+      <span class="logo-icon">✨</span>
+      <span class="logo-text">NextGenCommerce</span>
+    </div>
+    <nav class="nav-links">
+      <a href="#" class="active">Home</a>
+      <a href="#">Shop</a>
+      <a href="#">Categories</a>
+      <a href="#">About</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="icon-btn"><span class="material-icons">search</span></button>
+      <button class="icon-btn"><span class="material-icons">shopping_cart</span></button>
+      <a routerLink="/login" class="btn-primary">Sign In</a>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <span class="badge">Welcome to the Future of Shopping</span>
+      <h1>Discover premium products designed for modern life.</h1>
+      <p>Explore our curated collection of electronics, fashion, and lifestyle essentials. Experience lightning-fast delivery and top-notch customer service.</p>
+      <div class="hero-buttons">
+        <button class="btn-primary large">Shop Now <span class="material-icons">arrow_forward</span></button>
+        <button class="btn-secondary large">View Collections</button>
+      </div>
+    </div>
+    <div class="hero-image-container">
+      <!-- A placeholder abstract shape to look premium -->
+      <div class="abstract-shape"></div>
+      <div class="glass-card">
+        <div class="glass-header">Trending Now</div>
+        <div class="glass-body">
+          <div class="trending-item">🎧 Sony WH-1000XM5</div>
+          <div class="trending-item">💻 MacBook Pro M3</div>
+          <div class="trending-item">📱 iPhone 15 Pro Max</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Products -->
+  <section class="featured-section">
+    <div class="section-header">
+      <h2>Featured Products</h2>
+      <a href="#" class="view-all">View All <span class="material-icons">chevron_right</span></a>
+    </div>
+    
+    <div class="product-grid">
+      <div class="product-card" *ngFor="let product of featuredProducts">
+        <div class="product-image">
+          <span class="product-emoji">{{ product.image }}</span>
+          <span class="product-tag" [ngClass]="product.tag.toLowerCase()">{{ product.tag }}</span>
+        </div>
+        <div class="product-info">
+          <span class="product-category">{{ product.category }}</span>
+          <h3 class="product-name">{{ product.name }}</h3>
+          <div class="product-footer">
+            <span class="product-price">${{ product.price }}</span>
+            <button class="add-to-cart"><span class="material-icons">add_shopping_cart</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

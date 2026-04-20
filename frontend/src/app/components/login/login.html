@@ -1,0 +1,90 @@
+<div class="login-page">
+  <!-- Left: Branding Panel -->
+  <div class="branding-panel">
+    <div class="branding-content">
+      <div class="brand-logo">
+        <div class="logo-mark"></div>
+        <span>NextGenCommerce</span>
+      </div>
+      <h1>Analytics that drive your business forward.</h1>
+      <p>Real-time dashboards, AI-powered insights, and seamless e-commerce management — all in one platform.</p>
+      
+      <div class="feature-pills">
+        <div class="pill"><span class="material-icons">insights</span> Smart Analytics</div>
+        <div class="pill"><span class="material-icons">security</span> Enterprise Security</div>
+        <div class="pill"><span class="material-icons">speed</span> Real-time Data</div>
+      </div>
+    </div>
+    
+    <!-- Decorative Elements -->
+    <div class="deco-circle deco-1"></div>
+    <div class="deco-circle deco-2"></div>
+    <div class="deco-circle deco-3"></div>
+  </div>
+
+  <!-- Right: Login Form -->
+  <div class="form-panel">
+    <div class="form-wrapper">
+      <div class="form-header">
+        <h2>Welcome back</h2>
+        <p>Sign in to your account to continue</p>
+      </div>
+
+      <form (ngSubmit)="onSubmit()" class="login-form">
+        <!-- Error Message -->
+        <div class="error-banner" *ngIf="errorMessage">
+          <span class="material-icons">error_outline</span>
+          {{ errorMessage }}
+        </div>
+
+        <!-- Email Field -->
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <div class="input-wrapper">
+            <span class="material-icons input-icon">mail</span>
+            <input 
+              type="email" 
+              id="email" 
+              [(ngModel)]="email" 
+              name="email"
+              placeholder="you@example.com"
+              autocomplete="email">
+          </div>
+        </div>
+
+        <!-- Password Field -->
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-wrapper">
+            <span class="material-icons input-icon">lock</span>
+            <input 
+              type="password" 
+              id="password" 
+              [(ngModel)]="password" 
+              name="password"
+              placeholder="••••••••"
+              autocomplete="current-password">
+          </div>
+          <a href="#" class="forgot-link">Forgot password?</a>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn-login" [disabled]="isLoading">
+          <span *ngIf="!isLoading">Sign In</span>
+          <span *ngIf="isLoading" class="spinner"></span>
+        </button>
+      </form>
+
+      <!-- Demo hint -->
+      <div class="demo-hint">
+        <span class="material-icons">info</span>
+        <div>
+          <strong>Demo Accounts:</strong>
+          <span>Use <code>admin&#64;...</code> for Admin, <code>corporate&#64;...</code> for Corporate, or any other email for Individual.</span>
+        </div>
+      </div>
+
+      <p class="signup-link">Don't have an account? <a routerLink="/home">Back to Home</a></p>
+    </div>
+  </div>
+</div>

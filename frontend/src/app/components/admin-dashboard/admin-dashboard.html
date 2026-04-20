@@ -1,0 +1,112 @@
+<div class="dashboard-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon"></div>
+      <h2>AnalyticsPro</h2>
+    </div>
+    
+    <nav class="nav-menu">
+      <a href="#" class="nav-item active">
+        <span class="material-icons">dashboard</span>
+        Dashboard
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-icons">inventory_2</span>
+        Products
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-icons">receipt_long</span>
+        Orders
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-icons">people</span>
+        Customers
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-icons">smart_toy</span>
+        AI Assistant
+      </a>
+    </nav>
+    
+    <div class="user-profile">
+      <div class="avatar">A</div>
+      <div class="user-info">
+        <span class="name">Admin User</span>
+        <span class="role">Administrator</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="header">
+      <div class="header-title">
+        <h1>Overview Dashboard</h1>
+        <p>Welcome back, here's what's happening today.</p>
+      </div>
+      <div class="header-actions">
+        <div class="search-bar">
+          <span class="material-icons">search</span>
+          <input type="text" placeholder="Search analytics...">
+        </div>
+        <button class="btn-icon"><span class="material-icons">notifications</span></button>
+      </div>
+    </header>
+
+    <!-- KPI Cards -->
+    <section class="kpi-grid">
+      <div class="kpi-card" *ngFor="let kpi of kpis">
+        <div class="kpi-header">
+          <div class="kpi-icon-wrapper">
+            <span class="material-icons">{{ kpi.icon }}</span>
+          </div>
+          <span class="kpi-trend" [class.positive]="kpi.positive" [class.negative]="!kpi.positive">
+            <span class="material-icons">{{ kpi.positive ? 'trending_up' : 'trending_down' }}</span>
+            {{ kpi.trend }}
+          </span>
+        </div>
+        <div class="kpi-body">
+          <h3>{{ kpi.value }}</h3>
+          <p>{{ kpi.title }}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Charts Section -->
+    <section class="charts-grid">
+      <!-- Revenue Chart -->
+      <div class="chart-card chart-span-2">
+        <div class="chart-header">
+          <h2>Revenue Overview</h2>
+          <select class="chart-filter">
+            <option>This Year</option>
+            <option>Last Year</option>
+          </select>
+        </div>
+        <div class="chart-container">
+          <canvas baseChart
+                  [data]="revenueChartData"
+                  [options]="revenueChartOptions"
+                  [type]="'line'">
+          </canvas>
+        </div>
+      </div>
+
+      <!-- Categories Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h2>Sales by Category</h2>
+          <button class="btn-icon-small"><span class="material-icons">more_vert</span></button>
+        </div>
+        <div class="chart-container">
+          <canvas baseChart
+                  [data]="categoryChartData"
+                  [options]="categoryChartOptions"
+                  [type]="'bar'">
+          </canvas>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>

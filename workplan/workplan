@@ -1,0 +1,81 @@
+# 🗺️ E-Commerce Projesi — Çalışma Planı
+
+## Mevcut Durum Özeti
+
+| Katman | Durum |
+|--------|-------|
+| **DB** | MySQL `aad1` veritabanı Docker'da çalışıyor. `users`, `products`, `orders`, `order_items`, `shipments`, `reviews`, `categories`, `stores` tabloları dolu (Kaggle verileri) |
+| **Backend (Spring Boot)** | JPA Entity'ler, JWT Security altyapısı, AuthController (`/api/auth/login`, `/register`), CORS config, ProductController, OrderController, ChatController (dummy) mevcut |
+| **Frontend (Angular)** | Home sayfası (mock verili), Login sayfası (mock — gerçek API'ye bağlı değil), Admin Dashboard (Chart.js ile KPI + grafikler, mock verili), Corporate/Individual Dashboard (boş), Auth Guard (route koruması) mevcut |
+
+---
+
+## Home Sayfasındaki Feature'lar (Mevcut)
+
+1. **Navbar** → Home, Shop, Categories, About linkleri + Search + Cart + Sign In butonu
+2. **Hero Section** → "Shop Now" + "View Collections" butonları + Trending Now glass kartı
+3. **Featured Products** → 4 ürün kartı (mock veri, emoji görsel) + "View All" linki
+
+---
+
+## Önceliklendirilmiş Çalışma Planı
+
+### 🔴 Öncelik 1: Login Akışını Gerçek Backend'e Bağlama
+> *Her şeyin temeli — giriş olmadan korumalı sayfalara erişim yok*
+
+| # | Görev | Dosya(lar) | Detay |
+|---|-------|------------|-------|
+| 1.1 | **AuthService'i HttpClient ile güncelle** | `frontend/services/auth.ts` | `POST /api/auth/login` çağrısı, JWT token'ı `localStorage`'a kaydetme, kullanıcı rolünü saklama |
+| 1.2 | **Login component'i gerçek API'ye bağla** | `frontend/components/login/login.ts` | Mock `setTimeout` → gerçek `HttpClient.post()` çağrısı |
+| 1.3 | **DB'deki user şifrelerini BCrypt'e çevir** | `backend` veya `database/init.sql` | Mevcut şifreler plaintext olabilir; Spring Security BCrypt bekliyor. Bir seeder/migration lazım |
+| 1.4 | **Auth Guard'ı token-bazlı yap** | `frontend/app.routes.ts` | Şu an sadece in-memory signal kontrol ediyor; sayfa yenilenince oturum kayboluyor. `localStorage` token kontrolüne geçir |
+| 1.5 | **Register sayfası (opsiyonel)** | Yeni component | Yeni kullanıcı kaydı |
+
+### 🟠 Öncelik 2: Navbar'ı Dinamik Yap (Oturum Durumuna Göre)
+> *Giriş yapmışsa "Sign In" yerine kullanıcı adı ve logout butonu göster*
+
+| # | Görev | Dosya(lar) |
+|---|-------|------------|
+| 2.1 | **Navbar'a oturum durumu ekle** | `home.html`, `home.ts` |
+| 2.2 | **Tüm sayfalarda ortak Navbar component** | Yeni `shared/navbar` component |
+
+### 🟡 Öncelik 3: Featured Products'ı Gerçek Veritabanından Çek
+> *Home sayfasındaki ürünler DB'den gelsin*
+
+| # | Görev | Dosya(lar) |
+|---|-------|------------|
+| 3.1 | **ApiService oluştur (HttpClient + JWT interceptor)** | `frontend/services/api.ts` |
+| 3.2 | **Home component'ı API'den ürün çekecek şekilde güncelle** | `home.ts`, `home.html` |
+
+### 🟢 Öncelik 4: Dashboard'ları Gerçek Veriyle Doldur
+> *Admin dashboard KPI'ları ve grafikleri gerçek DB verisine dayansın*
+
+| # | Görev | Dosya(lar) |
+|---|-------|------------|
+| 4.1 | **Backend'e analitik endpoint'leri ekle** | `AnalyticsController.java` — toplam gelir, sipariş sayısı, kategori bazlı satış vb. |
+| 4.2 | **Admin Dashboard'u API'ye bağla** | `admin-dashboard.ts` |
+| 4.3 | **Corporate & Individual dashboard'ları tasarla ve bağla** | İlgili component dosyaları |
+
+### 🔵 Öncelik 5: Kalan Home Sayfası Feature'ları
+> *Shop, Categories, About, Cart, Search*
+
+| # | Görev |
+|---|-------|
+| 5.1 | **Shop sayfası** → Tüm ürünleri listeleyen sayfa (paginated) |
+| 5.2 | **Categories sayfası** → Kategori bazlı filtreleme |
+| 5.3 | **Ürün detay sayfası** → Tek ürün görünümü + yorumlar |
+| 5.4 | **Sepet (Cart)** → Ürün ekleme, çıkarma, toplam hesaplama |
+| 5.5 | **Arama (Search)** → Ürün arama fonksiyonu |
+
+---
+
+## Önerilen Başlangıç Sırası
+
+```
+1.3 (DB şifre fix) → 1.1 (AuthService) → 1.2 (Login bağlama) → 1.4 (Guard fix)
+    → 2.1-2.2 (Navbar) → 3.1-3.2 (Ürünler API) → 4.1-4.3 (Dashboard API)
+    → 5.1-5.5 (Kalan sayfalar)
+```
+
+> [!IMPORTANT]
+> **İlk yapılması gereken:** Veritabanındaki kullanıcıların şifrelerinin BCrypt formatında olup olmadığını kontrol etmek. Eğer plaintext ise, Spring Boot login endpoint'i asla çalışmaz.
