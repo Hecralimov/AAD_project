@@ -9,11 +9,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ecommerce.analytics_backend.dto.CategorySalesDTO;
+import com.ecommerce.analytics_backend.dto.MonthlyRevenueProjection;
 import com.ecommerce.analytics_backend.dto.RoleDistributionDTO;
 import com.ecommerce.analytics_backend.dto.SentimentDistributionDTO;
 import com.ecommerce.analytics_backend.repository.OrderItemRepository;
 import com.ecommerce.analytics_backend.repository.OrderRepository;
 import com.ecommerce.analytics_backend.repository.ReviewRepository;
+import com.ecommerce.analytics_backend.repository.ShipmentRepository;
 import com.ecommerce.analytics_backend.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ public class AnalyticsController {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final ReviewRepository reviewRepository;
+    private final ShipmentRepository shipmentRepository;
 
     @GetMapping("/users/distribution")
     public ResponseEntity<List<RoleDistributionDTO>> getUserDistribution() {
@@ -47,5 +50,21 @@ public class AnalyticsController {
     @GetMapping("/reviews/sentiment")
     public ResponseEntity<List<SentimentDistributionDTO>> getReviewSentiments() {
         return ResponseEntity.ok(reviewRepository.getSentimentDistribution());
+    }
+
+    @GetMapping("/orders/total")
+    public ResponseEntity<Long> getTotalOrders() {
+        return ResponseEntity.ok(orderRepository.count());
+    }
+
+    @GetMapping("/shipments/pending")
+    public ResponseEntity<Long> getPendingShipments() {
+        // Assuming your database uses 'PENDING' as the status string
+        return ResponseEntity.ok(shipmentRepository.countByStatus("PENDING"));
+    }
+
+    @GetMapping("/revenue/monthly")
+    public ResponseEntity<List<MonthlyRevenueProjection>> getMonthlyRevenue() {
+        return ResponseEntity.ok(orderRepository.getMonthlyRevenue());
     }
 }
