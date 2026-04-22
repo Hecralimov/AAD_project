@@ -6,6 +6,8 @@ import org.springframework.stereotype.Repository;
 
 import com.ecommerce.analytics_backend.model.User;
 
+import com.ecommerce.analytics_backend.dto.RoleDistributionDTO;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -15,6 +17,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, String> {
     Optional<User> findByEmail(String email);
 
-    @Query("SELECT u FROM User u WHERE u.passwordHash NOT LIKE '$2a$%' OR u.passwordHash IS NULL")
-    List<User> findUsersNeedingMigration();
+    @Query("SELECT new com.ecommerce.analytics_backend.dto.RoleDistributionDTO(u.roleType, COUNT(u)) " +
+           "FROM User u GROUP BY u.roleType")
+    List<RoleDistributionDTO> getRoleDistribution();
 }

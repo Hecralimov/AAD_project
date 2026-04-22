@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BaseChartDirective } from 'ng2-charts';
-import { ChartConfiguration, ChartOptions } from 'chart.js';
+import { ChartConfiguration, ChartOptions, Chart } from 'chart.js';
 import { AnalyticsService } from '../../services/analytics.service';
 import { DashboardAnalytics } from '../../models/analytics';
 
@@ -13,6 +13,9 @@ import { DashboardAnalytics } from '../../models/analytics';
   styleUrl: './admin-dashboard.css',
 })
 export class AdminDashboard implements OnInit {
+  // Chart'ları manuel güncellemek için referans alıyoruz
+  @ViewChild(BaseChartDirective) chart: BaseChartDirective | undefined;
+
   constructor(private analyticsService: AnalyticsService) {}
 
   ngOnInit() {
@@ -29,7 +32,7 @@ export class AdminDashboard implements OnInit {
   }
 
   updateDashboard(data: DashboardAnalytics) {
-    // Update KPIs
+    // 1. KPI'ları Gerçek Veriyle Güncelle
     this.kpis = [
       { title: 'Total Revenue', value: data.kpis.totalRevenue, icon: 'payments', trend: data.kpis.revenueTrend, positive: data.kpis.revenuePositive },
       { title: 'Total Orders', value: data.kpis.totalOrders.toString(), icon: 'shopping_cart', trend: data.kpis.ordersTrend, positive: data.kpis.ordersPositive },
@@ -37,70 +40,74 @@ export class AdminDashboard implements OnInit {
       { title: 'Pending Shipments', value: data.kpis.pendingShipments.toString(), icon: 'local_shipping', trend: '-1.4%', positive: false }
     ];
 
-    // Update Category Chart
-    this.categoryChartData.labels = data.categorySales.map(s => s.categoryName);
-    this.categoryChartData.datasets[0].data = data.categorySales.map(s => s.count);
+    // 2. Kategori Grafiğini Gerçek Veriyle "YENİDEN" Oluştur (Referansı değiştirerek Angular'ı tetikliyoruz)
+    this.categoryChartData = {
+      labels: data.categorySales.map(s => s.categoryName),
+      datasets: [
+        { 
+          data: data.categorySales.map(s => s.count), 
+          label: 'Sales', 
+          backgroundColor: '#8b5cf6', 
+          borderRadius: 6 
+        }
+      ]
+    };
 
-    // Update Revenue Chart
-    this.revenueChartData.labels = data.monthlyRevenue.map(r => r.month);
-    this.revenueChartData.datasets[0].data = data.monthlyRevenue.map(r => r.amount);
+    // 3. Revenue Grafiğini Gerçek Veriyle "YENİDEN" Oluştur
+    this.revenueChartData = {
+      labels: data.monthlyRevenue.map(r => r.month),
+      datasets: [
+        {
+          data: data.monthlyRevenue.map(r => r.amount),
+          label: 'Monthly Revenue ($)',
+          fill: true,
+          tension: 0.4,
+          borderColor: '#6366f1',
+          backgroundColor: 'rgba(99, 102, 241, 0.2)'
+        }
+      ]
+    };
+
+    // Değişiklikleri grafiğe zorla
+    this.chart?.update();
   }
 
-  // Line chart for Revenue
+  // Başlangıçta boş grafik objeleri tanımlıyoruz (Mock dataları sildik)
   public revenueChartData: ChartConfiguration<'line'>['data'] = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-    datasets: [
-      {
-        data: [45000, 52000, 48000, 61000, 59000, 75000, 84000],
-        label: 'Monthly Revenue ($)',
-        fill: true,
-        tension: 0.4,
-        borderColor: '#6366f1',
-        backgroundColor: 'rgba(99, 102, 241, 0.2)'
-      }
-    ]
+    labels: [],
+    datasets: [{ data: [], label: 'Monthly Revenue ($)' }]
   };
+  
   public revenueChartOptions: ChartOptions<'line'> = {
     responsive: true,
     maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false }
-    },
+    plugins: { legend: { display: false } },
     scales: {
       y: { beginAtZero: true, grid: { color: '#e5e7eb' } },
       x: { grid: { display: false } }
     }
   };
 
-  // Bar chart for Sales by Category
   public categoryChartData: ChartConfiguration<'bar'>['data'] = {
-    labels: ['Electronics', 'Clothing', 'Home', 'Beauty', 'Sports'],
-    datasets: [
-      { 
-        data: [650, 450, 300, 250, 150], 
-        label: 'Sales', 
-        backgroundColor: '#8b5cf6', 
-        borderRadius: 6 
-      }
-    ]
+    labels: [],
+    datasets: [{ data: [], label: 'Sales' }]
   };
+
   public categoryChartOptions: ChartOptions<'bar'> = {
     responsive: true,
     maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false }
-    },
+    plugins: { legend: { display: false } },
     scales: {
       y: { beginAtZero: true, grid: { color: '#e5e7eb' } },
       x: { grid: { display: false } }
     }
   };
 
-  // KPIs
+  // Başlangıçta boş KPI'lar
   kpis = [
-    { title: 'Total Revenue', value: '$124,563', icon: 'payments', trend: '+14.5%', positive: true },
-    { title: 'Total Orders', value: '8,452', icon: 'shopping_cart', trend: '+5.2%', positive: true },
-    { title: 'Active Users', value: '1,245', icon: 'group', trend: '+2.1%', positive: true },
-    { title: 'Pending Shipments', value: '342', icon: 'local_shipping', trend: '-1.4%', positive: false }
+    { title: 'Total Revenue', value: 'Loading...', icon: 'payments', trend: '...', positive: true },
+    { title: 'Total Orders', value: 'Loading...', icon: 'shopping_cart', trend: '...', positive: true },
+    { title: 'Active Users', value: 'Loading...', icon: 'group', trend: '...', positive: true },
+    { title: 'Pending Shipments', value: 'Loading...', icon: 'local_shipping', trend: '...', positive: false }
   ];
 }
