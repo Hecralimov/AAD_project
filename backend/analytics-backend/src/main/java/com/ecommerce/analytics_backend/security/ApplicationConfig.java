@@ -24,24 +24,4 @@ public class ApplicationConfig {
         return username -> userRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
     }
-
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        // Spring Security 7.x requires passing the UserDetailsService directly into the constructor
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService());
-        
-        // Tells the provider what password encoder to use
-        authProvider.setPasswordEncoder(passwordEncoder());
-        return authProvider;
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 }

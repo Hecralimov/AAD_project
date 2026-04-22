@@ -53,6 +53,7 @@ public class AuthController {
 
         @PostMapping("/login")
         public ResponseEntity<AuthResponse> authenticate(@RequestBody AuthRequest request) {
+                System.out.println("[DEBUG] Login attempt received for email: " + request.getEmail());
                 // Authenticate credentials (this throws an exception if incorrect)
                 authenticationManager.authenticate(
                                 new UsernamePasswordAuthenticationToken(

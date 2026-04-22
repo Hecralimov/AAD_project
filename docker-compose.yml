@@ -26,6 +26,11 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/aad1
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=admin
+    volumes:
+      # Map your local target folder to the container
+      - ./backend/target:/app/target
+      # Map your local Maven repo to avoid re-downloads
+      - ~/.m2:/root/.m2
     depends_on:
       - mysql-db
 

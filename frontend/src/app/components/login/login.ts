@@ -31,7 +31,8 @@ export class Login {
 
     this.authService.login({ email: this.email, password: this.password }).subscribe({
       next: (res) => {
-        const role = res.role.toUpperCase();
+        console.log('Backend Response:', res); // <--- BU SATIRI EKLE
+        const role = res.role?.toUpperCase();
         if (role === 'ADMIN') {
           this.router.navigate(['/admin']);
         } else if (role === 'CORPORATE') {

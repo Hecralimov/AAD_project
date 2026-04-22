@@ -39,7 +39,7 @@ public class User implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // We add "ROLE_" prefix because Spring Security usually expects it for RBAC
-        return List.of(new SimpleGrantedAuthority("ROLE_" + roleType));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + roleType.toUpperCase()));
     }
 
     @Override

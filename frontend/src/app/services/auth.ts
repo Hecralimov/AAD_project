@@ -29,6 +29,7 @@ export class AuthService {
   login(credentials: { email: string; password: string }): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
       tap((res) => {
+        const normalizedRole = res.role.toUpperCase();
         localStorage.setItem('token', res.token);
         localStorage.setItem('role', res.role);
         this.currentUserRole.set(res.role);
@@ -43,7 +44,7 @@ export class AuthService {
   }
 
   hasRole(role: string): boolean {
-    return this.currentUserRole() === role;
+    return this.currentUserRole()?.toUpperCase() === role.toUpperCase();
   }
   
   isLoggedIn(): boolean {
