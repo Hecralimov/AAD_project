@@ -39,7 +39,10 @@
 
         <!-- Email Field -->
         <div class="form-group">
-          <label for="email">Email Address</label>
+          <div class="label-row">
+            <label for="email">Email Address</label>
+            <span class="limit-warning" *ngIf="email.length >= 50">Maximum limit reached</span>
+          </div>
           <div class="input-wrapper">
             <span class="material-icons input-icon">mail</span>
             <input 
@@ -48,22 +51,35 @@
               [(ngModel)]="email" 
               name="email"
               placeholder="you@example.com"
-              autocomplete="email">
+              autocomplete="email"
+              maxlength="50"
+              pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$">
           </div>
         </div>
 
         <!-- Password Field -->
         <div class="form-group">
-          <label for="password">Password</label>
+          <div class="label-row">
+            <label for="password">Password</label>
+            <span class="limit-warning" *ngIf="password.length >= 32">Maximum limit reached</span>
+          </div>
           <div class="input-wrapper">
             <span class="material-icons input-icon">lock</span>
             <input 
-              type="password" 
+              [type]="showPassword ? 'text' : 'password'" 
               id="password" 
               [(ngModel)]="password" 
               name="password"
               placeholder="••••••••"
-              autocomplete="current-password">
+              autocomplete="current-password"
+              maxlength="32">
+            <button 
+              type="button" 
+              class="toggle-password" 
+              (click)="togglePasswordVisibility()"
+              [title]="showPassword ? 'Hide password' : 'Show password'">
+              <span class="material-icons">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+            </button>
           </div>
           <a href="#" class="forgot-link">Forgot password?</a>
         </div>
@@ -75,16 +91,9 @@
         </button>
       </form>
 
-      <!-- Demo hint -->
-      <div class="demo-hint">
-        <span class="material-icons">info</span>
-        <div>
-          <strong>Demo Accounts:</strong>
-          <span>Use <code>admin&#64;...</code> for Admin, <code>corporate&#64;...</code> for Corporate, or any other email for Individual.</span>
-        </div>
-      </div>
 
-      <p class="signup-link">Don't have an account? <a routerLink="/home">Back to Home</a></p>
+
+      <p class="signup-link">Don't have an account? <a routerLink="/register">Create one</a></p>
     </div>
   </div>
 </div>

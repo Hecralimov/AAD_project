@@ -1,0 +1,5 @@
+@import "../admin-dashboard/admin-dashboard.css";
+
+.dashboard-layout {
+    height: calc(100vh - 65px);
+}

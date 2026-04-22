@@ -189,6 +189,24 @@
   color: #334155;
 }
 
+.label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.limit-warning {
+  font-size: 0.75rem;
+  color: #ef4444;
+  font-weight: 500;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .input-wrapper {
   position: relative;
   display: flex;
@@ -224,6 +242,37 @@
   border-color: #6366f1;
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
   background: #ffffff;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  z-index: 2;
+}
+
+.toggle-password:hover {
+  color: #6366f1;
+  background: rgba(99, 102, 241, 0.05);
+}
+
+.toggle-password .material-icons {
+  font-size: 20px;
+}
+
+/* Adjust padding for password input specifically if needed, 
+   but since both use the same wrapper, let's just ensure enough right padding */
+.input-wrapper input {
+  padding-right: 3rem;
 }
 
 .forgot-link {

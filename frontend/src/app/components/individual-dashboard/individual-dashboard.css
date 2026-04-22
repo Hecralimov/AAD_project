@@ -1,0 +1,11 @@
+@import "../admin-dashboard/admin-dashboard.css";
+
+/* Overriding some styles for personal feel */
+.kpi-icon-wrapper {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.dashboard-layout {
+    height: calc(100vh - 65px);
+}

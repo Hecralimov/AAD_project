@@ -5,15 +5,17 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth';
 
 @Component({
-  selector: 'app-login',
+  selector: 'app-register',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
-  templateUrl: './login.html',
-  styleUrl: './login.css',
+  templateUrl: './register.html',
+  styleUrl: './register.css',
 })
-export class Login {
+export class Register {
   email = '';
   password = '';
+  roleType = 'Individual';
+  gender = 'Other';
   errorMessage = '';
   isLoading = false;
   showPassword = false;
@@ -24,20 +26,23 @@ export class Login {
     this.showPassword = !this.showPassword;
   }
 
-
   onSubmit() {
     this.errorMessage = '';
 
     if (!this.email || !this.password) {
-      this.errorMessage = 'Please enter both email and password.';
+      this.errorMessage = 'Please fill in all required fields.';
       return;
     }
 
     this.isLoading = true;
 
-    this.authService.login({ email: this.email, password: this.password }).subscribe({
+    this.authService.register({
+      email: this.email,
+      password: this.password,
+      roleType: this.roleType,
+      gender: this.gender
+    }).subscribe({
       next: (res) => {
-        console.log('Backend Response:', res);
         const role = res.role?.toUpperCase();
         if (role === 'ADMIN') {
           this.router.navigate(['/admin']);
@@ -49,8 +54,8 @@ export class Login {
         this.isLoading = false;
       },
       error: (err) => {
-        console.error('Login failed', err);
-        this.errorMessage = 'Invalid email or password.';
+        console.error('Registration failed', err);
+        this.errorMessage = 'Registration failed. Email might already be in use.';
         this.isLoading = false;
       },
     });

@@ -1,0 +1,31 @@
+@import "../login/login.css";
+
+.form-row {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+}
+
+.form-group.half {
+    flex: 1;
+}
+
+select {
+    width: 100%;
+    padding: 0.85rem 1rem 0.85rem 2.8rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-family: 'Inter', sans-serif;
+    color: #0f172a;
+    background: #f8fafc;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    appearance: none;
+}
+
+select:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    background: #ffffff;
+}
