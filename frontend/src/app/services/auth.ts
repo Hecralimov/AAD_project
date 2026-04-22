@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 
@@ -12,8 +12,8 @@ export interface AuthResponse {
   providedIn: 'root',
 })
 export class AuthService {
-  // null means not logged in.
   currentUserRole = signal<string | null>(null);
+  isLoggedIn = computed(() => this.currentUserRole() !== null);
   
   private apiUrl = 'http://localhost:8080/api/auth';
 
@@ -22,7 +22,10 @@ export class AuthService {
     const token = localStorage.getItem('token');
     const role = localStorage.getItem('role');
     if (token && role) {
+      console.log('Restoring session from localStorage:', { role });
       this.currentUserRole.set(role);
+    } else {
+      console.log('No session found in localStorage');
     }
   }
 
@@ -47,7 +50,5 @@ export class AuthService {
     return this.currentUserRole()?.toUpperCase() === role.toUpperCase();
   }
   
-  isLoggedIn(): boolean {
-    return this.currentUserRole() !== null;
-  }
+
 }
