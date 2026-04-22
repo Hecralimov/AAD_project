@@ -1,0 +1,124 @@
+<div class="login-page">
+    <!-- Left: Branding Panel -->
+    <div class="branding-panel">
+      <div class="branding-content">
+        <div class="brand-logo">
+          <div class="logo-mark"></div>
+          <span>NextGenCommerce</span>
+        </div>
+        <h1>Join the future of e-commerce analytics.</h1>
+        <p>Create your account and start gaining valuable insights today.</p>
+        
+        <div class="feature-pills">
+          <div class="pill"><span class="material-icons">person_add</span> Easy Setup</div>
+          <div class="pill"><span class="material-icons">analytics</span> Free Insights</div>
+          <div class="pill"><span class="material-icons">verified_user</span> Secure Platform</div>
+        </div>
+      </div>
+      
+      <!-- Decorative Elements -->
+      <div class="deco-circle deco-1"></div>
+      <div class="deco-circle deco-2"></div>
+      <div class="deco-circle deco-3"></div>
+    </div>
+  
+    <!-- Right: Register Form -->
+    <div class="form-panel">
+      <div class="form-wrapper">
+        <div class="form-header">
+          <h2>Create Account</h2>
+          <p>Fill in the details to get started</p>
+        </div>
+  
+        <form (ngSubmit)="onSubmit()" class="login-form">
+          <!-- Error Message -->
+          <div class="error-banner" *ngIf="errorMessage">
+            <span class="material-icons">error_outline</span>
+            {{ errorMessage }}
+          </div>
+  
+          <!-- Email Field -->
+          <div class="form-group">
+            <div class="label-row">
+              <label for="email">Email Address</label>
+              <span class="limit-warning" *ngIf="email.length >= 50">Maximum limit reached</span>
+            </div>
+            <div class="input-wrapper">
+              <span class="material-icons input-icon">mail</span>
+              <input 
+                type="email" 
+                id="email" 
+                [(ngModel)]="email" 
+                name="email"
+                placeholder="you@example.com"
+                autocomplete="email"
+                maxlength="50"
+                pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$">
+            </div>
+          </div>
+  
+          <!-- Password Field -->
+          <div class="form-group">
+            <div class="label-row">
+              <label for="password">Password</label>
+              <span class="limit-warning" *ngIf="password.length >= 32">Maximum limit reached</span>
+            </div>
+            <div class="input-wrapper">
+              <span class="material-icons input-icon">lock</span>
+              <input 
+                [type]="showPassword ? 'text' : 'password'" 
+                id="password" 
+                [(ngModel)]="password" 
+                name="password"
+                placeholder="••••••••"
+                autocomplete="new-password"
+                maxlength="32">
+              <button 
+                type="button" 
+                class="toggle-password" 
+                (click)="togglePasswordVisibility()"
+                [title]="showPassword ? 'Hide password' : 'Show password'">
+                <span class="material-icons">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <!-- Role Field -->
+            <div class="form-group half">
+              <label for="roleType">Account Type</label>
+              <div class="input-wrapper">
+                <span class="material-icons input-icon">badge</span>
+                <select id="roleType" [(ngModel)]="roleType" name="roleType">
+                  <option value="Individual">Individual</option>
+                  <option value="Corporate">Corporate</option>
+                  <option value="Admin">Admin</option>
+                </select>
+              </div>
+            </div>
+    
+            <!-- Gender Field -->
+            <div class="form-group half">
+              <label for="gender">Gender</label>
+              <div class="input-wrapper">
+                <span class="material-icons input-icon">person</span>
+                <select id="gender" [(ngModel)]="gender" name="gender">
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+          </div>
+  
+          <!-- Submit Button -->
+          <button type="submit" class="btn-login" [disabled]="isLoading">
+            <span *ngIf="!isLoading">Create Account</span>
+            <span *ngIf="isLoading" class="spinner"></span>
+          </button>
+        </form>
+  
+        <p class="signup-link">Already have an account? <a routerLink="/login">Sign In</a></p>
+      </div>
+    </div>
+  </div>

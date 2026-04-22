@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartOptions } from 'chart.js';
+import { AnalyticsService } from '../../services/analytics.service';
+import { DashboardAnalytics } from '../../models/analytics';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -10,7 +12,40 @@ import { ChartConfiguration, ChartOptions } from 'chart.js';
   templateUrl: './admin-dashboard.html',
   styleUrl: './admin-dashboard.css',
 })
-export class AdminDashboard {
+export class AdminDashboard implements OnInit {
+  constructor(private analyticsService: AnalyticsService) {}
+
+  ngOnInit() {
+    this.fetchAnalytics();
+  }
+
+  fetchAnalytics() {
+    this.analyticsService.getAdminAnalytics().subscribe({
+      next: (data) => {
+        this.updateDashboard(data);
+      },
+      error: (err) => console.error('Failed to fetch analytics', err)
+    });
+  }
+
+  updateDashboard(data: DashboardAnalytics) {
+    // Update KPIs
+    this.kpis = [
+      { title: 'Total Revenue', value: data.kpis.totalRevenue, icon: 'payments', trend: data.kpis.revenueTrend, positive: data.kpis.revenuePositive },
+      { title: 'Total Orders', value: data.kpis.totalOrders.toString(), icon: 'shopping_cart', trend: data.kpis.ordersTrend, positive: data.kpis.ordersPositive },
+      { title: 'Active Users', value: data.kpis.activeUsers.toString(), icon: 'group', trend: '+2.1%', positive: true },
+      { title: 'Pending Shipments', value: data.kpis.pendingShipments.toString(), icon: 'local_shipping', trend: '-1.4%', positive: false }
+    ];
+
+    // Update Category Chart
+    this.categoryChartData.labels = data.categorySales.map(s => s.categoryName);
+    this.categoryChartData.datasets[0].data = data.categorySales.map(s => s.count);
+
+    // Update Revenue Chart
+    this.revenueChartData.labels = data.monthlyRevenue.map(r => r.month);
+    this.revenueChartData.datasets[0].data = data.monthlyRevenue.map(r => r.amount);
+  }
+
   // Line chart for Revenue
   public revenueChartData: ChartConfiguration<'line'>['data'] = {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],

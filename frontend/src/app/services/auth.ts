@@ -40,6 +40,16 @@ export class AuthService {
     );
   }
 
+  register(userData: { email: string; password: string; roleType: string; gender: string }): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, userData).pipe(
+      tap((res) => {
+        localStorage.setItem('token', res.token);
+        localStorage.setItem('role', res.role);
+        this.currentUserRole.set(res.role);
+      })
+    );
+  }
+
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('role');

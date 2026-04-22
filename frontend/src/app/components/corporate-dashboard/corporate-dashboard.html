@@ -1,1 +1,49 @@
-<p>corporate-dashboard works!</p>
+<div class="dashboard-layout">
+    <div class="main-content">
+        <header class="header">
+            <div class="header-title">
+                <h1>Store Performance</h1>
+                <p>Manage your business and analyze sales</p>
+            </div>
+        </header>
+
+        <!-- KPI Grid -->
+        <div class="kpi-grid">
+            @for (kpi of kpis; track kpi.title) {
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <div class="kpi-icon-wrapper">
+                        <span class="material-icons">{{ kpi.icon }}</span>
+                    </div>
+                </div>
+                <div class="kpi-body">
+                    <h3>{{ kpi.value }}</h3>
+                    <p>{{ kpi.title }}</p>
+                </div>
+            </div>
+            }
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card chart-span-2">
+                <div class="chart-header">
+                    <h2>Store Revenue Trend</h2>
+                </div>
+                <div class="chart-container">
+                    <canvas baseChart [data]="revenueChartData" [options]="revenueChartOptions" [type]="'line'">
+                    </canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h2>Inventory Levels</h2>
+                </div>
+                <div class="chart-container">
+                    <canvas baseChart [data]="inventoryChartData" [options]="inventoryChartOptions" [type]="'bar'">
+                    </canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
