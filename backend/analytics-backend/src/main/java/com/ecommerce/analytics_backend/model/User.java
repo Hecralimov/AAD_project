@@ -34,7 +34,7 @@ public class User implements UserDetails {
 
     @Column(name = "is_active")
     @Builder.Default
-    private boolean isActive = true;
+    private Boolean isActive = true;
 
     private String gender;
 
