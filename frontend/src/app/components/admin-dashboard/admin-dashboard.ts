@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartOptions, Chart } from 'chart.js';
@@ -16,7 +16,7 @@ export class AdminDashboard implements OnInit {
   // Chart'ları manuel güncellemek için referans alıyoruz
   @ViewChild(BaseChartDirective) chart: BaseChartDirective | undefined;
 
-  constructor(private analyticsService: AnalyticsService) {}
+  constructor(private analyticsService: AnalyticsService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.fetchAnalytics();
@@ -70,6 +70,11 @@ export class AdminDashboard implements OnInit {
 
     // Değişiklikleri grafiğe zorla
     this.chart?.update();
+
+    this.cdr.detectChanges();
+    if (this.chart) {
+      this.chart.update();
+    }
   }
 
   // Başlangıçta boş grafik objeleri tanımlıyoruz (Mock dataları sildik)

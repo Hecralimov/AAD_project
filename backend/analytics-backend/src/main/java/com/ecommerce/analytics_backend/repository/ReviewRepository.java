@@ -12,6 +12,8 @@ import com.ecommerce.analytics_backend.model.Review;
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, String> {
 
+    List<Review> findByProductId(String productId);
+
     @Query("SELECT new com.ecommerce.analytics_backend.dto.SentimentDistributionDTO(r.sentiment, COUNT(r)) " +
            "FROM Review r " +
            "GROUP BY r.sentiment")

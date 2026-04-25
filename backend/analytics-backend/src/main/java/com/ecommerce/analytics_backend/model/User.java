@@ -32,6 +32,10 @@ public class User implements UserDetails {
     @Column(name = "role_type")
     private String roleType; // Admin, Corporate, Individual
 
+    @Column(name = "is_active")
+    @Builder.Default
+    private boolean isActive = true;
+
     private String gender;
 
     // --- UserDetails Methods for Spring Security ---
@@ -69,6 +73,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return isActive;
     }
 }

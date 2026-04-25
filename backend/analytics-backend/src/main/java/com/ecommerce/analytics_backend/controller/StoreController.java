@@ -1,29 +1,44 @@
 package com.ecommerce.analytics_backend.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.ecommerce.analytics_backend.model.Store;
-import com.ecommerce.analytics_backend.repository.StoreRepository;
+import com.ecommerce.analytics_backend.service.StoreService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/stores")
+@RequiredArgsConstructor
 public class StoreController {
-
-    @Autowired
-    private StoreRepository storeRepository;
+    private final StoreService storeService;
 
     @GetMapping
-    public Page<Store> getAllStores(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "100") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return storeRepository.findAll(pageable);
+    public ResponseEntity<List<Store>> getAllStores() {
+        return ResponseEntity.ok(storeService.getAllStores());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Store> getStoreById(@PathVariable String id) {
+        return storeService.getStoreById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping
+    public ResponseEntity<Store> createStore(@RequestBody Store store) {
+        return ResponseEntity.ok(storeService.createStore(store));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Store> updateStore(@PathVariable String id, @RequestBody Store store) {
+        return ResponseEntity.ok(storeService.updateStore(id, store));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteStore(@PathVariable String id) {
+        storeService.deleteStore(id);
+        return ResponseEntity.ok().build();
     }
 }

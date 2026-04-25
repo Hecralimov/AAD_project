@@ -24,6 +24,8 @@ public class Product {
     @Column(name = "category_id")
     private String categoryId;
 
+    private int stock;
+
     private String sku;
 
     private String name;
