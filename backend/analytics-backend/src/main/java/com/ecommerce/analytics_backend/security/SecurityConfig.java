@@ -32,12 +32,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
-            // Use the bean defined below for CORS
             .cors(Customizer.withDefaults()) 
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
-                // Spring 'hasRole' adds 'ROLE_' prefix automatically. 
-                // Ensure your UserDetails returns 'ROLE_ADMIN'.
+                .requestMatchers("/api/individual/**").hasRole("INDIVIDUAL")
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/corporate/**").hasRole("CORPORATE")
                 .anyRequest().authenticated()
@@ -50,7 +48,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // Explicit CORS configuration for your Angular frontend
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

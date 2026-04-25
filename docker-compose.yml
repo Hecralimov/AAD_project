@@ -15,6 +15,11 @@ services:
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
       # Verilerin silinmemesi için kalıcı depolama alanı yaratır
       - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-padmin"]
+      timeout: 5s
+      retries: 10
+      interval: 10s
 
   backend:
     build:
@@ -32,7 +37,8 @@ services:
       # Map your local Maven repo to avoid re-downloads
       - ~/.m2:/root/.m2
     depends_on:
-      - mysql-db
+      mysql-db:
+        condition: service_healthy
 
   frontend:
     build:
