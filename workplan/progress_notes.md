@@ -53,3 +53,33 @@
 - **`login.css` & `register.css`**: Hid the left-side branding panel on mobile screens to allow the form to take up the full width, preventing cramped inputs. Stacked the two-column inputs in the register form.
 - **`navbar.css`**: Updated the navbar to wrap nicely on mobile, centering navigation links below the logo and actions.
 - Checked off **B7** in `implementation_plan.md`.
+
+## Task B8: Checkout Page (Completed)
+- Created `OrderService` (`frontend/src/app/services/order.service.ts`) with `checkout()`, `getMyOrders()`, and `getOrderTracking()` methods.
+- Built `CheckoutComponent` (`frontend/src/app/components/checkout/`) with:
+  - Shipping information form (full name, address, city, zip code).
+  - Payment method selection (Credit Card, PayPal, Bank Transfer) with radio buttons.
+  - Real-time order summary showing cart items, subtotal, shipping, and total.
+  - Calls `POST /api/individual/checkout` to submit orders to backend.
+  - Success confirmation screen with order ID display.
+- Added `/checkout` route to `app.routes.ts` with lazy loading.
+- Backend already had `CheckoutController` and `CheckoutService` fully implemented.
+
+## Task B9: Individual Purchase History (Completed)
+- Rewrote `IndividualDashboard` to include sidebar navigation with tabbed views.
+- Added "My Orders" tab with a responsive data table showing Order ID, Date, Total, and Status.
+- Implemented order tracking expansion — clicking "Track" reveals shipment warehouse, mode, and status inline.
+- Wired to `GET /api/orders/my-orders` and `GET /api/orders/{orderId}/tracking` backend endpoints.
+- Added styled status badges for DELIVERED, PENDING, SHIPPED, PROCESSING, and CANCELLED statuses.
+
+## Task B10: Individual Dashboard Wiring (Completed)
+- Replaced mock data in `IndividualDashboard` with real API call to `GET /api/individual/analytics`.
+- KPI cards now display actual `totalSpent` and `orderCount` from `IndividualAnalyticsDTO`.
+- Status doughnut chart is now dynamically populated from `statusDistribution` data.
+- Added `ChangeDetectorRef` for proper zoneless change detection.
+
+## Task B11: Corporate Dashboard Wiring (Completed)
+- Replaced mock data in `CorporateDashboard` with real API call to `GET /api/corporate/analytics`.
+- KPI cards now display actual `totalRevenue`, `orderCount`, and `lowStockCount` from `CorporateAnalyticsDTO`.
+- Added `ChangeDetectorRef` for proper zoneless change detection.
+- Checked off **B8-B11** in `implementation_plan.md`.

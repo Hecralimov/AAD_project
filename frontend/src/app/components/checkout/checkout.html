@@ -1,0 +1,132 @@
+<div class="checkout-page">
+  @if (orderPlaced) {
+  <!-- Order Confirmation -->
+  <div class="confirmation-container">
+    <div class="confirmation-card">
+      <div class="success-icon">
+        <span class="material-icons">check_circle</span>
+      </div>
+      <h1>Order Placed Successfully!</h1>
+      <p>Your order <strong>#{{ orderId.substring(0, 8) }}</strong> has been confirmed.</p>
+      <p class="sub-text">You will receive a confirmation email shortly. Your items are being prepared for shipment.</p>
+      <div class="confirmation-actions">
+        <a routerLink="/individual" class="btn-primary">View My Orders</a>
+        <a routerLink="/products" class="btn-secondary">Continue Shopping</a>
+      </div>
+    </div>
+  </div>
+  } @else {
+  <!-- Checkout Flow -->
+  <div class="checkout-container">
+    <div class="checkout-header">
+      <h1>Checkout</h1>
+      <p>Complete your order by filling in the details below</p>
+    </div>
+
+    @if (errorMessage) {
+    <div class="error-banner">
+      <span class="material-icons">error_outline</span>
+      {{ errorMessage }}
+    </div>
+    }
+
+    <div class="checkout-grid">
+      <!-- Left: Forms -->
+      <div class="checkout-forms">
+        <!-- Shipping Info -->
+        <div class="form-section">
+          <div class="section-title">
+            <span class="material-icons">local_shipping</span>
+            <h2>Shipping Information</h2>
+          </div>
+          <div class="form-group">
+            <label for="fullName">Full Name</label>
+            <input id="fullName" type="text" [(ngModel)]="fullName" placeholder="John Doe">
+          </div>
+          <div class="form-group">
+            <label for="address">Street Address</label>
+            <input id="address" type="text" [(ngModel)]="address" placeholder="123 Main St">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="city">City</label>
+              <input id="city" type="text" [(ngModel)]="city" placeholder="Istanbul">
+            </div>
+            <div class="form-group">
+              <label for="zipCode">Zip Code</label>
+              <input id="zipCode" type="text" [(ngModel)]="zipCode" placeholder="34000">
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Method -->
+        <div class="form-section">
+          <div class="section-title">
+            <span class="material-icons">payment</span>
+            <h2>Payment Method</h2>
+          </div>
+          <div class="payment-options">
+            <label class="payment-option" [class.selected]="paymentMethod === 'credit_card'">
+              <input type="radio" name="payment" value="credit_card" [(ngModel)]="paymentMethod">
+              <span class="material-icons">credit_card</span>
+              <span>Credit Card</span>
+            </label>
+            <label class="payment-option" [class.selected]="paymentMethod === 'paypal'">
+              <input type="radio" name="payment" value="paypal" [(ngModel)]="paymentMethod">
+              <span class="material-icons">account_balance_wallet</span>
+              <span>PayPal</span>
+            </label>
+            <label class="payment-option" [class.selected]="paymentMethod === 'bank_transfer'">
+              <input type="radio" name="payment" value="bank_transfer" [(ngModel)]="paymentMethod">
+              <span class="material-icons">account_balance</span>
+              <span>Bank Transfer</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Order Summary -->
+      <div class="order-summary">
+        <h2>Order Summary</h2>
+        <div class="summary-items">
+          @for (item of cartItems; track item.product.id) {
+          <div class="summary-item">
+            <div class="item-info">
+              <span class="item-name">{{ item.product.name }}</span>
+              <span class="item-qty">x{{ item.quantity }}</span>
+            </div>
+            <span class="item-price">${{ (item.product.unitPrice * item.quantity).toFixed(2) }}</span>
+          </div>
+          }
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span>${{ subtotal.toFixed(2) }}</span>
+        </div>
+        <div class="summary-row">
+          <span>Shipping</span>
+          <span>${{ shipping.toFixed(2) }}</span>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-row total">
+          <span>Total</span>
+          <span>${{ total.toFixed(2) }}</span>
+        </div>
+        <button class="btn-place-order" (click)="placeOrder()" [disabled]="isProcessing">
+          @if (isProcessing) {
+            <div class="spinner"></div>
+          } @else {
+            <span class="material-icons">lock</span>
+            Place Order
+          }
+        </button>
+        <p class="secure-note">
+          <span class="material-icons">verified_user</span>
+          Your payment information is secure
+        </p>
+      </div>
+    </div>
+  </div>
+  }
+</div>
