@@ -43,8 +43,8 @@ public class UserService {
     @Transactional
     public User suspendUser(String id) {
         User user = userRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("User not found: " + id));
-        user.setActive(false); 
+                .orElseThrow(() -> new RuntimeException("User not found: " + id));
+        user.setIsActive(false);
         return userRepository.save(user);
     }
 }

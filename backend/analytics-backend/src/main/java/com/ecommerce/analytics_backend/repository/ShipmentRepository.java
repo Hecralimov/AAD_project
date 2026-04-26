@@ -8,5 +8,7 @@ import com.ecommerce.analytics_backend.model.Shipment;
 @Repository
 public interface ShipmentRepository extends JpaRepository<Shipment, String> {
     Optional<Shipment> findByOrderId(String orderId);
+
     Long countByStatus(String status);
+
 }

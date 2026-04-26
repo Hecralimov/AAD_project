@@ -12,8 +12,8 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 @Entity
 @Table(name = "products", indexes = {
-    @Index(name = "idx_products_store_id", columnList = "store_id"),
-    @Index(name = "idx_products_category_id", columnList = "category_id")
+        @Index(name = "idx_products_store_id", columnList = "store_id"),
+        @Index(name = "idx_products_category_id", columnList = "category_id")
 })
 public class Product {
 

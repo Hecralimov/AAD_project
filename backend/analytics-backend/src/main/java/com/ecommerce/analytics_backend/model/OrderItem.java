@@ -12,7 +12,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 @Entity
 @Table(name = "order_items", indexes = {
-    @Index(name = "idx_order_items_order_id", columnList = "order_id")
+        @Index(name = "idx_order_items_order_id", columnList = "order_id")
 })
 public class OrderItem {
 
@@ -28,5 +28,6 @@ public class OrderItem {
 
     private Integer quantity;
 
-    private BigDecimal price;
+    @Column(name = "unit_price")
+    private BigDecimal unitPrice;
 }

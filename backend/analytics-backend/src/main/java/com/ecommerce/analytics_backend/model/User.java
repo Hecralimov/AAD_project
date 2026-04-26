@@ -17,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "users") 
+@Table(name = "users")
 public class User implements UserDetails {
 
     @Id
@@ -33,8 +33,7 @@ public class User implements UserDetails {
     private String roleType; // Admin, Corporate, Individual
 
     @Column(name = "is_active")
-    @Builder.Default
-    private Boolean isActive = true;
+    private Boolean isActive;
 
     private String gender;
 
@@ -75,4 +74,13 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return isActive;
     }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
 }

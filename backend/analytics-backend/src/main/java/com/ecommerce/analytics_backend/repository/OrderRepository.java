@@ -19,9 +19,9 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     BigDecimal calculateTotalRevenue();
 
     @Query("SELECT FUNCTION('DATE_FORMAT', o.createdAt, '%b') as month, SUM(o.grandTotal) as amount " +
-           "FROM Order o " +
-           "GROUP BY FUNCTION('DATE_FORMAT', o.createdAt, '%Y-%m'), FUNCTION('DATE_FORMAT', o.createdAt, '%b') " +
-           "ORDER BY FUNCTION('DATE_FORMAT', o.createdAt, '%Y-%m')")
+            "FROM Order o " +
+            "GROUP BY FUNCTION('DATE_FORMAT', o.createdAt, '%Y-%m'), FUNCTION('DATE_FORMAT', o.createdAt, '%b') " +
+            "ORDER BY FUNCTION('DATE_FORMAT', o.createdAt, '%Y-%m')")
     List<MonthlyRevenueProjection> getMonthlyRevenue();
 
     @Query("SELECT COUNT(o) FROM Order o WHERE o.storeId = :storeId")
@@ -39,6 +39,12 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     List<Map<String, Object>> getOrderStatusDistribution(String userId);
 
     List<Order> findByStoreId(String storeId);
+
     List<Order> findByStoreIdAndStatus(String storeId, String status);
+
     Optional<Order> findByIdAndStoreId(String id, String storeId);
+
+    List<Order> findByUserIdOrderByCreatedAtDesc(String userId);
+
+    List<Order> findByUserIdAndStatusOrderByCreatedAtDesc(String userId, String status);
 }
