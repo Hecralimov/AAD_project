@@ -5,7 +5,9 @@ import { Login } from './components/login/login';
 import { AdminDashboard } from './components/admin-dashboard/admin-dashboard';
 import { CorporateDashboard } from './components/corporate-dashboard/corporate-dashboard';
 import { IndividualDashboard } from './components/individual-dashboard/individual-dashboard';
+import { Shop } from './components/shop/shop';
 import { Register } from './components/register/register';
+import { CartComponent } from './components/cart/cart';
 import { AuthService } from './services/auth';
 
 const authGuard = (role: string): CanActivateFn => {
@@ -22,6 +24,8 @@ const authGuard = (role: string): CanActivateFn => {
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: Home },
+  { path: 'products', component: Shop },
+  { path: 'cart', component: CartComponent },
   { path: 'login', component: Login },
   { path: 'register', component: Register },
   { path: 'admin', component: AdminDashboard, canActivate: [authGuard('Admin')] },

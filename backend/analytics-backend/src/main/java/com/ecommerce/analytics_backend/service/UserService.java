@@ -41,10 +41,10 @@ public class UserService {
     }
 
     @Transactional
-    public User suspendUser(String id) {
+    public User suspendUser(String id, boolean suspend) {
         User user = userRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("User not found: " + id));
-        user.setActive(false); 
+        user.setActive(!suspend); 
         return userRepository.save(user);
     }
 }

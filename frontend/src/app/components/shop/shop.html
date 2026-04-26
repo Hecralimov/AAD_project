@@ -1,0 +1,104 @@
+<div class="shop-page">
+  <!-- Hero Section -->
+  <section class="shop-hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1>Explore Our Collection</h1>
+      <p>Discover premium products curated just for you.</p>
+    </div>
+  </section>
+
+  <div class="shop-container">
+    <!-- Sidebar Filters -->
+    <aside class="shop-sidebar">
+      <div class="filter-group">
+        <h3>Search</h3>
+        <div class="search-bar">
+          <input type="text" placeholder="Search products..." [(ngModel)]="searchQuery" (keyup.enter)="onSearch()">
+          <button (click)="onSearch()" class="search-btn"><span class="material-icons">search</span></button>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <h3>Categories</h3>
+        <ul class="filter-list">
+          <li [class.active]="selectedCategoryId === ''" (click)="onCategorySelect('')">All Products</li>
+          @for (category of categories; track category.id) {
+            <li [class.active]="selectedCategoryId === category.id" (click)="onCategorySelect(category.id)">
+              {{ category.name }}
+            </li>
+          }
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="shop-main">
+      <div class="shop-toolbar">
+        <div class="results-count">
+          Showing <span>{{ products.length }}</span> of {{ totalElements }} products
+        </div>
+        <div class="sort-dropdown">
+          <select [ngModel]="sortOption" (change)="onSortChange($event)">
+            <option value="">Default Sort</option>
+            <option value="latest">Latest Arrivals</option>
+            <option value="priceAsc">Price: Low to High</option>
+            <option value="priceDesc">Price: High to Low</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div class="loader-container" *ngIf="isLoading">
+        <div class="spinner"></div>
+      </div>
+
+      <!-- Product Grid -->
+      <div class="product-grid" *ngIf="!isLoading">
+        @for (product of products; track product.id) {
+        <div class="product-card" [routerLink]="['/products', product.id]">
+          <div class="product-image">
+            <img [src]="product.imageUrl || 'https://via.placeholder.com/300x400?text=Product'" [alt]="product.name">
+            <div class="card-actions">
+              <button class="action-btn" title="Add to Wishlist"><span class="material-icons">favorite_border</span></button>
+              <button class="action-btn" title="Quick View"><span class="material-icons">visibility</span></button>
+            </div>
+            <button class="add-to-cart" (click)="addToCart(product, $event)">Add to Cart</button>
+          </div>
+          <div class="product-info">
+            <span class="category-tag">Category</span>
+            <h3>{{ product.name }}</h3>
+            <div class="price-row">
+              <span class="price">${{ product.unitPrice }}</span>
+              <div class="rating">
+                <span class="material-icons">star</span>
+                <span>4.5</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination" *ngIf="totalPages > 1">
+        <button class="page-btn prev" [disabled]="currentPage === 0" (click)="goToPage(currentPage - 1)">
+          <span class="material-icons">chevron_left</span>
+        </button>
+        
+        @for (page of getPages(); track page) {
+          <button 
+            class="page-btn" 
+            [class.active]="page === currentPage"
+            (click)="goToPage(page)">
+            {{ page + 1 }}
+          </button>
+        }
+
+        <button class="page-btn next" [disabled]="currentPage === totalPages - 1" (click)="goToPage(currentPage + 1)">
+          <span class="material-icons">chevron_right</span>
+        </button>
+      </div>
+    </main>
+  </div>
+</div>

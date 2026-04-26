@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-navbar',
@@ -10,7 +11,8 @@ import { AuthService } from '../../services/auth';
   styleUrl: './navbar.css',
 })
 export class Navbar {
-  constructor(public authService: AuthService, private router: Router) { }
+  constructor(public authService: AuthService, public cartService: CartService, private router: Router) { }
+
 
   logout() {
     this.authService.logout();

@@ -41,4 +41,13 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.ok().build();
     }
+
+    @PutMapping("/{id}/suspend")
+    public ResponseEntity<User> suspendUser(@PathVariable String id, @RequestBody java.util.Map<String, Boolean> payload) {
+        Boolean suspended = payload.get("suspended");
+        if (suspended == null) {
+            suspended = true;
+        }
+        return ResponseEntity.ok(userService.suspendUser(id, suspended));
+    }
 }
