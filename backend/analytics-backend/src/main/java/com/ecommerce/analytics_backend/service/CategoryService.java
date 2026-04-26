@@ -29,7 +29,6 @@ public class CategoryService {
 
     @Transactional
     public Category createCategory(Category category) {
-        // Business logic (e.g., validation) goes here before saving
         return categoryRepository.save(category);
     }
 
