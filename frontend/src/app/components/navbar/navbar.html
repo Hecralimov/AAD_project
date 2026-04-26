@@ -6,14 +6,18 @@
     </a>
     <nav class="nav-links">
         <a routerLink="/home" routerLinkActive="active">Home</a>
-        <a routerLink="/shop" routerLinkActive="active">Shop</a>
+        <a routerLink="/products" routerLinkActive="active">Shop</a>
         <a routerLink="/categories" routerLinkActive="active">Categories</a>
         <a routerLink="/about" routerLinkActive="active">About</a>
     </nav>
     <div class="nav-actions">
         <button class="icon-btn"><span class="material-icons">search</span></button>
-        <button class="icon-btn"><span class="material-icons">shopping_cart</span></button>
-
+        <button class="icon-btn" routerLink="/cart">
+            <span class="material-icons">shopping_cart</span>
+            @if (cartService.totalItems() > 0) {
+                <span class="cart-badge">{{ cartService.totalItems() }}</span>
+            }
+        </button>
         @if (!authService.isLoggedIn()) {
         <a routerLink="/login" class="btn-primary">Sign In</a>
         } @else {

@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartOptions, Chart } from 'chart.js';
 import { AnalyticsService } from '../../services/analytics.service';
+import { UserService } from '../../services/user.service';
+import { StoreService } from '../../services/store.service';
 import { DashboardAnalytics } from '../../models/analytics';
 
 @Component({
@@ -13,13 +15,70 @@ import { DashboardAnalytics } from '../../models/analytics';
   styleUrl: './admin-dashboard.css',
 })
 export class AdminDashboard implements OnInit {
+  currentTab: string = 'dashboard';
+  users: any[] = []; // From UserService
+  stores: any[] = []; // From StoreService
+
   // Chart'ları manuel güncellemek için referans alıyoruz
   @ViewChild(BaseChartDirective) chart: BaseChartDirective | undefined;
 
-  constructor(private analyticsService: AnalyticsService, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private analyticsService: AnalyticsService,
+    private userService: UserService,
+    private storeService: StoreService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
     this.fetchAnalytics();
+  }
+
+  setTab(tab: string) {
+    this.currentTab = tab;
+    if (tab === 'users') {
+      this.loadUsers();
+    } else if (tab === 'stores') {
+      this.loadStores();
+    }
+  }
+
+  loadStores() {
+    this.storeService.getStores().subscribe({
+      next: (stores) => this.stores = stores,
+      error: (err) => console.error('Failed to fetch stores', err)
+    });
+  }
+
+  toggleStoreStatus(store: any) {
+    const newStatus = store.status === 'OPEN' ? 'CLOSED' : 'OPEN';
+    this.storeService.updateStoreStatus(store.id, newStatus).subscribe({
+      next: (updatedStore) => store.status = updatedStore.status,
+      error: (err) => console.error('Failed to update store status', err)
+    });
+  }
+
+  loadUsers() {
+    this.userService.getUsers().subscribe({
+      next: (users) => this.users = users,
+      error: (err) => console.error('Failed to fetch users', err)
+    });
+  }
+
+  toggleSuspend(user: any) {
+    const newStatus = !user.isSuspended;
+    this.userService.suspendUser(user.id, newStatus).subscribe({
+      next: () => user.isSuspended = newStatus,
+      error: (err) => console.error('Failed to suspend user', err)
+    });
+  }
+
+  deleteUser(id: string) {
+    if(confirm('Are you sure you want to delete this user?')) {
+      this.userService.deleteUser(id).subscribe({
+        next: () => this.users = this.users.filter(u => u.id !== id),
+        error: (err) => console.error('Failed to delete user', err)
+      });
+    }
   }
 
   fetchAnalytics() {

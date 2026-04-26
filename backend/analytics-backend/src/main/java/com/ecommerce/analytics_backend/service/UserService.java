@@ -1,13 +1,15 @@
 package com.ecommerce.analytics_backend.service;
 
-import com.ecommerce.analytics_backend.model.User;
-import com.ecommerce.analytics_backend.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import com.ecommerce.analytics_backend.model.User;
+import com.ecommerce.analytics_backend.repository.UserRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +43,7 @@ public class UserService {
     }
 
     @Transactional
-    public User suspendUser(String id) {
+    public User suspendUser(String id, boolean suspend) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found: " + id));
         user.setIsActive(false);

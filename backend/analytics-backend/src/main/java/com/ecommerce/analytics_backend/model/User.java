@@ -39,6 +39,14 @@ public class User implements UserDetails {
 
     // --- UserDetails Methods for Spring Security ---
 
+    public void setActive(boolean active) {
+        this.isActive = active;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // We add "ROLE_" prefix because Spring Security usually expects it for RBAC

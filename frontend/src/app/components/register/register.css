@@ -29,3 +29,11 @@ select:focus {
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
     background: #ffffff;
 }
+
+/* Mobile (480px) */
+@media (max-width: 480px) {
+    .form-row {
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+}

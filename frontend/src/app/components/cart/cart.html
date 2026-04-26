@@ -1,0 +1,61 @@
+<div class="cart-container">
+    <div class="cart-header">
+        <h1>Your Shopping Cart</h1>
+        <p *ngIf="cartService.totalItems() > 0">{{ cartService.totalItems() }} items</p>
+    </div>
+
+    @if (cartService.items().length === 0) {
+        <div class="empty-cart">
+            <span class="material-icons empty-icon">shopping_cart</span>
+            <h2>Your cart is empty</h2>
+            <p>Looks like you haven't added anything to your cart yet.</p>
+            <a routerLink="/products" class="btn-primary">Start Shopping</a>
+        </div>
+    } @else {
+        <div class="cart-content">
+            <div class="cart-items">
+                @for (item of cartService.items(); track item.product.id) {
+                    <div class="cart-item">
+                        <div class="item-image">
+                            <img [src]="item.product.imageUrl || 'assets/placeholder.png'" [alt]="item.product.name">
+                        </div>
+                        <div class="item-details">
+                            <a [routerLink]="['/products', item.product.id]" class="item-name">{{ item.product.name }}</a>
+                            <p class="item-price">${{ item.product.unitPrice | number:'1.2-2' }}</p>
+                        </div>
+                        <div class="item-quantity">
+                            <button class="qty-btn" (click)="decrementQuantity(item.product.id, item.quantity)">-</button>
+                            <input type="number" [value]="item.quantity" min="1" (change)="updateQuantity(item.product.id, $event)">
+                            <button class="qty-btn" (click)="incrementQuantity(item.product.id, item.quantity)">+</button>
+                        </div>
+                        <div class="item-total">
+                            ${{ (item.product.unitPrice * item.quantity) | number:'1.2-2' }}
+                        </div>
+                        <button class="remove-btn icon-btn" (click)="removeItem(item.product.id)" aria-label="Remove item">
+                            <span class="material-icons">delete_outline</span>
+                        </button>
+                    </div>
+                }
+            </div>
+
+            <div class="cart-summary">
+                <h2>Order Summary</h2>
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span>${{ cartService.subtotal() | number:'1.2-2' }}</span>
+                </div>
+                <div class="summary-row">
+                    <span>Shipping</span>
+                    <span>Calculated at checkout</span>
+                </div>
+                <div class="summary-divider"></div>
+                <div class="summary-row total">
+                    <span>Total</span>
+                    <span>${{ cartService.subtotal() | number:'1.2-2' }}</span>
+                </div>
+                <a routerLink="/checkout" class="btn-primary checkout-btn">Proceed to Checkout</a>
+                <a routerLink="/products" class="continue-shopping">Continue Shopping</a>
+            </div>
+        </div>
+    }
+</div>

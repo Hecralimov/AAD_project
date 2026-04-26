@@ -384,3 +384,22 @@
 .signup-link a:hover {
   text-decoration: underline;
 }
+
+/* Tablet & Mobile */
+@media (max-width: 768px) {
+  .login-page {
+    flex-direction: column;
+  }
+  
+  .branding-panel {
+    display: none; /* Hide branding on smaller screens */
+  }
+  
+  .form-panel {
+    padding: 2rem 1.5rem;
+  }
+  
+  .form-wrapper {
+    max-width: 100%;
+  }
+}
