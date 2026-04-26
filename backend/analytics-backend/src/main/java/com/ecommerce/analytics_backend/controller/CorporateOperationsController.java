@@ -48,6 +48,40 @@ public class CorporateOperationsController {
         return ResponseEntity.ok(productService.getProductsByStore(storeId));
     }
 
+    @PostMapping("/products")
+    public ResponseEntity<Product> createStoreProduct(Principal principal, @RequestBody Product product) {
+        String storeId = resolveStoreId(principal);
+        product.setStoreId(storeId);
+        return ResponseEntity.ok(productService.createProduct(product));
+    }
+
+    @PutMapping("/products/{id}")
+    public ResponseEntity<Product> updateStoreProduct(
+            Principal principal,
+            @PathVariable String id,
+            @RequestBody Product product) {
+        String storeId = resolveStoreId(principal);
+        Product existing = productService.getProductById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found: " + id));
+        if (!storeId.equals(existing.getStoreId())) {
+            throw new RuntimeException("Access denied: product does not belong to your store");
+        }
+        product.setStoreId(storeId);
+        return ResponseEntity.ok(productService.updateProduct(id, product));
+    }
+
+    @DeleteMapping("/products/{id}")
+    public ResponseEntity<Void> deleteStoreProduct(Principal principal, @PathVariable String id) {
+        String storeId = resolveStoreId(principal);
+        Product existing = productService.getProductById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found: " + id));
+        if (!storeId.equals(existing.getStoreId())) {
+            throw new RuntimeException("Access denied: product does not belong to your store");
+        }
+        productService.deleteProduct(id);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/orders")
     public ResponseEntity<List<Order>> getStoreOrders(
             Principal principal,
