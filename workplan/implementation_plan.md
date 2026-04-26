@@ -65,9 +65,9 @@
 | B2 | ✅ **Product Detail Page** — `/products/:id` route: product info, price, reviews list, "Add to Cart" button. | 🔴 High | 2h |
 | B3 | ✅ **Shopping Cart** — `CartService` using Angular signals. Cart icon in navbar with item count badge. Cart page/drawer: item list, quantity +/-, remove, subtotal, "Proceed to Checkout". | 🔴 High | 3h |
 | B4 | ✅ **Admin: User Management Tab** — New tab in admin dashboard: table of users with role badge, email. Actions: suspend (toggle), delete. Calls backend CRUD. | 🔴 High | 3h |
-| B5 | **Admin: Store Management Tab** — New tab in admin dashboard: table of stores with status badge, owner. Actions: open/close store. | 🔴 High | 2h |
-| B6 | **Lazy Loading** — Convert dashboard routes to `loadComponent: () => import(...)` for code splitting. | 🟢 Low | 30m |
-| B7 | **Responsive CSS Pass** — Add media queries to all pages for tablet (768px) and mobile (480px) breakpoints. | 🟡 Med | 2h |
+| B5 | ✅ **Admin: Store Management Tab** — New tab in admin dashboard: table of stores with status badge, owner. Actions: open/close store. | 🔴 High | 2h |
+| B6 | ✅ **Lazy Loading** — Convert dashboard routes to `loadComponent: () => import(...)` for code splitting. | 🟢 Low | 30m |
+| B7 | ✅ **Responsive CSS Pass** — Add media queries to all pages for tablet (768px) and mobile (480px) breakpoints. | 🟡 Med | 2h |
 
 ---
 

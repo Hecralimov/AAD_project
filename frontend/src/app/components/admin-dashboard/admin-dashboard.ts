@@ -4,6 +4,7 @@ import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartOptions, Chart } from 'chart.js';
 import { AnalyticsService } from '../../services/analytics.service';
 import { UserService } from '../../services/user.service';
+import { StoreService } from '../../services/store.service';
 import { DashboardAnalytics } from '../../models/analytics';
 
 @Component({
@@ -16,6 +17,7 @@ import { DashboardAnalytics } from '../../models/analytics';
 export class AdminDashboard implements OnInit {
   currentTab: string = 'dashboard';
   users: any[] = []; // From UserService
+  stores: any[] = []; // From StoreService
 
   // Chart'ları manuel güncellemek için referans alıyoruz
   @ViewChild(BaseChartDirective) chart: BaseChartDirective | undefined;
@@ -23,6 +25,7 @@ export class AdminDashboard implements OnInit {
   constructor(
     private analyticsService: AnalyticsService,
     private userService: UserService,
+    private storeService: StoreService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -34,7 +37,24 @@ export class AdminDashboard implements OnInit {
     this.currentTab = tab;
     if (tab === 'users') {
       this.loadUsers();
+    } else if (tab === 'stores') {
+      this.loadStores();
     }
+  }
+
+  loadStores() {
+    this.storeService.getStores().subscribe({
+      next: (stores) => this.stores = stores,
+      error: (err) => console.error('Failed to fetch stores', err)
+    });
+  }
+
+  toggleStoreStatus(store: any) {
+    const newStatus = store.status === 'OPEN' ? 'CLOSED' : 'OPEN';
+    this.storeService.updateStoreStatus(store.id, newStatus).subscribe({
+      next: (updatedStore) => store.status = updatedStore.status,
+      error: (err) => console.error('Failed to update store status', err)
+    });
   }
 
   loadUsers() {

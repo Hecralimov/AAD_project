@@ -23,6 +23,10 @@
         <span class="material-icons">people</span>
         Users
       </a>
+      <a href="javascript:void(0)" class="nav-item" [class.active]="currentTab === 'stores'" (click)="setTab('stores')">
+        <span class="material-icons">storefront</span>
+        Stores
+      </a>
       <a href="javascript:void(0)" class="nav-item">
         <span class="material-icons">smart_toy</span>
         AI Assistant
@@ -42,8 +46,14 @@
   <main class="main-content">
     <header class="header">
       <div class="header-title">
-        <h1>{{ currentTab === 'dashboard' ? 'Overview Dashboard' : 'User Management' }}</h1>
-        <p>{{ currentTab === 'dashboard' ? "Welcome back, here's what's happening today." : "Manage system users and access levels." }}</p>
+        <h1>
+          {{ currentTab === 'dashboard' ? 'Overview Dashboard' : 
+             currentTab === 'users' ? 'User Management' : 'Store Management' }}
+        </h1>
+        <p>
+          {{ currentTab === 'dashboard' ? "Welcome back, here's what's happening today." : 
+             currentTab === 'users' ? "Manage system users and access levels." : "Manage marketplace stores and operations." }}
+        </p>
       </div>
       <div class="header-actions">
         <div class="search-bar">
@@ -156,7 +166,53 @@
               </tr>
               } @empty {
               <tr>
-                <td colspan="5" class="text-center py-4">No users found.</td>
+                <td colspan="4" class="text-center py-4">No users found.</td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+    } @else if (currentTab === 'stores') {
+    <section class="users-section">
+      <div class="users-card">
+        <div class="card-header">
+          <h2>All Stores</h2>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Store ID</th>
+                <th>Store Name</th>
+                <th>Owner ID</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (store of stores; track store.id) {
+              <tr>
+                <td>{{ store.id.substring(0, 8) }}...</td>
+                <td><span class="user-email">{{ store.name }}</span></td>
+                <td>{{ store.ownerId ? store.ownerId.substring(0, 8) + '...' : 'N/A' }}</td>
+                <td>
+                  <span class="badge" [class.badge-active]="store.status === 'OPEN'" [class.badge-suspended]="store.status !== 'OPEN'">
+                    {{ store.status }}
+                  </span>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="btn-icon-small" (click)="toggleStoreStatus(store)" [title]="store.status === 'OPEN' ? 'Close Store' : 'Open Store'">
+                      <span class="material-icons">{{ store.status === 'OPEN' ? 'lock' : 'lock_open' }}</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              } @empty {
+              <tr>
+                <td colspan="5" class="text-center py-4">No stores found.</td>
               </tr>
               }
             </tbody>

@@ -350,3 +350,48 @@
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
+
+/* Tablet (768px) */
+@media (max-width: 768px) {
+    .shop-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .shop-sidebar {
+        margin-bottom: 1rem;
+    }
+
+    .product-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+}
+
+/* Mobile (480px) */
+@media (max-width: 480px) {
+    .shop-hero {
+        height: 200px;
+    }
+
+    .hero-content h1 {
+        font-size: 2rem;
+    }
+
+    .shop-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .sort-dropdown {
+        width: 100%;
+    }
+
+    .sort-dropdown select {
+        width: 100%;
+    }
+
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+}

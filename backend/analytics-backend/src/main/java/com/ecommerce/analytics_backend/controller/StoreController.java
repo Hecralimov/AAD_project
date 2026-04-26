@@ -41,4 +41,10 @@ public class StoreController {
         storeService.deleteStore(id);
         return ResponseEntity.ok().build();
     }
+
+    @PutMapping("/{id}/status")
+    public ResponseEntity<Store> updateStoreStatus(@PathVariable String id, @RequestBody java.util.Map<String, String> payload) {
+        String status = payload.get("status");
+        return ResponseEntity.ok(storeService.updateStoreStatus(id, status));
+    }
 }
