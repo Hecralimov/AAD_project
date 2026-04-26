@@ -23,7 +23,9 @@ public class Review {
     private String productId;
 
     @Column(name = "star_rating")
-    private Integer starRating;
+    private Integer rating;
+
+    private String comment;
 
     private String sentiment;
 }
