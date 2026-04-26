@@ -40,6 +40,8 @@ public interface OrderRepository extends JpaRepository<Order, String> {
 
     List<Order> findByStoreId(String storeId);
 
+    List<Order> findByStoreIdOrderByCreatedAtDesc(String storeId);
+
     List<Order> findByStoreIdAndStatus(String storeId, String status);
 
     Optional<Order> findByIdAndStoreId(String id, String storeId);

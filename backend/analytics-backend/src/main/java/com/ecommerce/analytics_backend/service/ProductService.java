@@ -46,14 +46,15 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public List<Product> getProductsByStore(String storeId) {
-        return productRepository.findByStoreId(storeId);
+        return productRepository.findByStoreId(storeId, Pageable.unpaged()).getContent();
     }
 
     @Transactional(readOnly = true)
-    public Page<Product> getPublicProducts(String search, String categoryId, String sortBy, String sortDir, int page, int size) {
-        
-        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) 
-                ? Sort.by(sortBy).ascending() 
+    public Page<Product> getPublicProducts(String search, String categoryId, String sortBy, String sortDir, int page,
+            int size) {
+
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sortBy).ascending()
                 : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(page, size, sort);
