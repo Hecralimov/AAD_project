@@ -92,10 +92,10 @@
 
 | # | Task | Priority | Est. |
 |---|------|----------|------|
-| B8 | **Checkout Page** — `/checkout` route: order summary from cart → shipping info form → payment method radio buttons → "Place Order" button. Call checkout API, show confirmation. | 🔴 High | 3h |
-| B9 | **Individual: Purchase History** — `/individual/orders` or tab in dashboard: table of past orders with status badges, date, total. Click to see order detail + shipment status. | 🔴 High | 3h |
-| B10 | **Individual: Wire Dashboard** — Replace mock data with calls to `GET /api/individual/analytics`. Spending chart + status doughnut from real data. | 🔴 High | 1.5h |
-| B11 | **Corporate: Wire Dashboard** — Replace mock data with calls to `GET /api/corporate/analytics`. Revenue chart + inventory chart from real data. | 🔴 High | 1.5h |
+| B8 | ✅ **Checkout Page** — `/checkout` route: order summary from cart → shipping info form → payment method radio buttons → "Place Order" button. Call checkout API, show confirmation. | 🔴 High | 3h |
+| B9 | ✅ **Individual: Purchase History** — `/individual/orders` or tab in dashboard: table of past orders with status badges, date, total. Click to see order detail + shipment status. | 🔴 High | 3h |
+| B10 | ✅ **Individual: Wire Dashboard** — Replace mock data with calls to `GET /api/individual/analytics`. Spending chart + status doughnut from real data. | 🔴 High | 1.5h |
+| B11 | ✅ **Corporate: Wire Dashboard** — Replace mock data with calls to `GET /api/corporate/analytics`. Revenue chart + inventory chart from real data. | 🔴 High | 1.5h |
 | B12 | **Corporate: Product Management** — Tab in corporate dashboard: table of their products, add/edit/delete modals. Wire to backend CRUD. | 🔴 High | 3h |
 | B13 | **Corporate: Order Management** — Tab in corporate dashboard: incoming orders table, status update actions (mark shipped/delivered). | 🔴 High | 2h |
 | B14 | **Review Submission UI** — On product detail page: star rating picker + text input. List existing reviews below product. | 🟡 Med | 2h |
