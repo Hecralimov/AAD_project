@@ -57,6 +57,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/orders/**").hasRole("INDIVIDUAL")
                         .requestMatchers(HttpMethod.POST, "/api/orders/**").hasRole("INDIVIDUAL")
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/analytics/corporate/**").hasRole("CORPORATE")
+                        .requestMatchers(HttpMethod.GET, "/api/analytics/individual/**").hasRole("INDIVIDUAL")
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
