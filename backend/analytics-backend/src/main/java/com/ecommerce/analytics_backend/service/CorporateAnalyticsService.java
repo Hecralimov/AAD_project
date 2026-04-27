@@ -27,10 +27,9 @@ public class CorporateAnalyticsService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public CorporateAnalyticsDTO getAnalyticsForOwner(String ownerId, LocalDate startDate, LocalDate endDate) {
-        Store store = storeRepository.findByOwnerId(ownerId)
-                .orElseThrow(() -> new RuntimeException("No store found for user ID: " + ownerId));
+        Store store = getValidStore(ownerId);
 
         String storeId = store.getId();
         BigDecimal revenue;
@@ -59,13 +58,62 @@ public class CorporateAnalyticsService {
 
     private Store getValidStore(String ownerId) {
         return storeRepository.findByOwnerId(ownerId)
-                .orElseThrow(() -> new RuntimeException("Forbidden: No store associated with this corporate account."));
+                .orElseGet(() -> {
+                    Store store = new Store();
+                    store.setOwnerId(ownerId);
+                    store.setName("Corporate Store");
+                    store.setStatus("OPEN");
+                    return storeRepository.save(store);
+                });
     }
 
     // A12: Get Store Products
+    @Transactional
     public Page<Product> getStoreInventory(String ownerId, Pageable pageable) {
         Store store = getValidStore(ownerId);
         return productRepository.findByStoreId(store.getId(), pageable);
+    }
+
+    @Transactional
+    public Product createStoreProduct(String ownerId, Product product) {
+        Store store = getValidStore(ownerId);
+        product.setId(null);
+        product.setStoreId(store.getId());
+        return productRepository.save(product);
+    }
+
+    @Transactional
+    public Product updateStoreProduct(String ownerId, String productId, Product updatedProduct) {
+        Store store = getValidStore(ownerId);
+
+        Product existingProduct = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found: " + productId));
+
+        if (!existingProduct.getStoreId().equals(store.getId())) {
+            throw new RuntimeException("Forbidden: You cannot modify products that belong to another store.");
+        }
+
+        existingProduct.setName(updatedProduct.getName());
+        existingProduct.setSku(updatedProduct.getSku());
+        existingProduct.setUnitPrice(updatedProduct.getUnitPrice());
+        existingProduct.setStock(updatedProduct.getStock());
+        existingProduct.setCategoryId(updatedProduct.getCategoryId());
+
+        return productRepository.save(existingProduct);
+    }
+
+    @Transactional
+    public void deleteStoreProduct(String ownerId, String productId) {
+        Store store = getValidStore(ownerId);
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found: " + productId));
+
+        if (!product.getStoreId().equals(store.getId())) {
+            throw new RuntimeException("Forbidden: You cannot delete products that belong to another store.");
+        }
+
+        productRepository.delete(product);
     }
 
     // A13: Get Store Orders

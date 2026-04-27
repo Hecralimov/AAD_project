@@ -20,7 +20,10 @@ public class ReviewController {
     private final UserRepository userRepository;
 
     @GetMapping
-    public ResponseEntity<List<Review>> getAllReviews() {
+    public ResponseEntity<List<Review>> getAllReviews(@RequestParam(required = false) String productId) {
+        if (productId != null && !productId.isBlank()) {
+            return ResponseEntity.ok(reviewService.getReviewsForProduct(productId));
+        }
         return ResponseEntity.ok(reviewService.getAllReviews());
     }
 

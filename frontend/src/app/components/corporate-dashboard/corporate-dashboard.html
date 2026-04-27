@@ -15,7 +15,7 @@
         <span class="material-icons">inventory_2</span>
         Products
       </a>
-      <a href="javascript:void(0)" class="nav-item">
+      <a href="javascript:void(0)" class="nav-item" [class.active]="currentTab === 'orders'" (click)="setTab('orders')">
         <span class="material-icons">receipt_long</span>
         Orders
       </a>
@@ -40,11 +40,13 @@
       <div class="header-title">
         <h1>
           {{ currentTab === 'dashboard' ? 'Store Performance' :
-             currentTab === 'products' ? 'Product Management' : 'Store Performance' }}
+             currentTab === 'products' ? 'Product Management' :
+             currentTab === 'orders' ? 'Order Management' : 'Store Performance' }}
         </h1>
         <p>
           {{ currentTab === 'dashboard' ? 'Manage your business and analyze sales' :
-             currentTab === 'products' ? 'Add, edit, and manage your product catalog' : 'Manage your business' }}
+             currentTab === 'products' ? 'Add, edit, and manage your product catalog' :
+             currentTab === 'orders' ? 'Review incoming orders and update fulfillment status' : 'Manage your business' }}
         </p>
       </div>
       <div class="header-actions">
@@ -107,6 +109,12 @@
             <span class="material-icons">add</span> Add Product
           </button>
         </div>
+        @if (productError) {
+        <div class="alert alert-error">{{ productError }}</div>
+        }
+        @if (productSuccess) {
+        <div class="alert alert-success">{{ productSuccess }}</div>
+        }
         <div class="table-responsive">
           @if (productsLoading) {
           <div class="loading-state">
@@ -176,6 +184,97 @@
       </div>
     </section>
     }
+
+    <!-- Orders Tab -->
+    @else if (currentTab === 'orders') {
+    <section class="users-section">
+      <div class="users-card">
+        <div class="card-header">
+          <h2>Incoming Orders</h2>
+          <button class="btn-secondary" (click)="loadOrders()">
+            <span class="material-icons">refresh</span> Refresh
+          </button>
+        </div>
+        @if (orderError) {
+        <div class="alert alert-error">{{ orderError }}</div>
+        }
+        @if (orderSuccess) {
+        <div class="alert alert-success">{{ orderSuccess }}</div>
+        }
+        <div class="table-responsive">
+          @if (ordersLoading) {
+          <div class="loading-state">
+            <span class="material-icons spin">sync</span>
+            <p>Loading orders...</p>
+          </div>
+          } @else {
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Order</th>
+                <th>Customer</th>
+                <th>Total</th>
+                <th>Created</th>
+                <th>Current Status</th>
+                <th>Update Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (order of orders; track order.id) {
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <div class="product-avatar order-avatar">
+                      <span class="material-icons">receipt_long</span>
+                    </div>
+                    <div class="user-details">
+                      <span class="user-email">#{{ formatShortId(order.id) }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="sku-badge">{{ formatShortId(order.userId) }}</span></td>
+                <td class="price-cell">${{ order.grandTotal | number:'1.2-2' }}</td>
+                <td>{{ order.createdAt | date:'mediumDate' }}</td>
+                <td>
+                  <span class="badge" [ngClass]="getStatusClass(order.status)">
+                    {{ order.status || 'Pending' }}
+                  </span>
+                </td>
+                <td>
+                  <select class="status-select" [(ngModel)]="orderDraftStatuses[order.id]">
+                    <option value="Pending">Pending</option>
+                    <option value="Processing">Processing</option>
+                    <option value="Shipped">Shipped</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Cancelled">Cancelled</option>
+                  </select>
+                </td>
+                <td>
+                  <button
+                    class="btn-primary btn-table-action"
+                    (click)="updateOrderStatus(order)"
+                    [disabled]="updatingOrderId === order.id || orderDraftStatuses[order.id] === order.status">
+                    <span class="material-icons">local_shipping</span>
+                    {{ updatingOrderId === order.id ? 'Updating...' : 'Update' }}
+                  </button>
+                </td>
+              </tr>
+              } @empty {
+              <tr>
+                <td colspan="7" class="empty-state">
+                  <span class="material-icons">receipt_long</span>
+                  <p>No incoming orders yet.</p>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+          }
+        </div>
+      </div>
+    </section>
+    }
   </main>
 </div>
 
@@ -220,9 +319,9 @@
     </div>
     <div class="modal-footer">
       <button class="btn-secondary" (click)="closeProductModal()">Cancel</button>
-      <button class="btn-primary" (click)="saveProduct()" [disabled]="!productForm.name || !productForm.sku">
+      <button class="btn-primary" (click)="saveProduct()" [disabled]="isSavingProduct || !isProductFormValid()">
         <span class="material-icons">{{ isEditMode ? 'save' : 'add' }}</span>
-        {{ isEditMode ? 'Save Changes' : 'Add Product' }}
+        {{ isSavingProduct ? 'Saving...' : (isEditMode ? 'Save Changes' : 'Add Product') }}
       </button>
     </div>
   </div>
@@ -248,8 +347,8 @@
     </div>
     <div class="modal-footer">
       <button class="btn-secondary" (click)="closeDeleteModal()">Cancel</button>
-      <button class="btn-danger" (click)="confirmDelete()">
-        <span class="material-icons">delete</span> Delete
+      <button class="btn-danger" (click)="confirmDelete()" [disabled]="isDeletingProduct">
+        <span class="material-icons">delete</span> {{ isDeletingProduct ? 'Deleting...' : 'Delete' }}
       </button>
     </div>
   </div>

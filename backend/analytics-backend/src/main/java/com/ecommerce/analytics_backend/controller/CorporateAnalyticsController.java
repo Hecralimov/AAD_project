@@ -16,7 +16,7 @@ import java.security.Principal;
 import java.time.LocalDate;
 
 @RestController
-@RequestMapping("/api/analytics/corporate")
+@RequestMapping({ "/api/analytics/corporate", "/api/corporate/analytics" })
 @RequiredArgsConstructor
 public class CorporateAnalyticsController {
 
