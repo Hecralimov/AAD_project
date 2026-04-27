@@ -33,6 +33,45 @@ public class CorporateOperationsService {
         return productRepository.findByStoreId(store.getId(), pageable);
     }
 
+    @Transactional
+    public Product createStoreProduct(String ownerId, Product product) {
+        Store store = getValidStore(ownerId);
+        product.setStoreId(store.getId());
+        return productRepository.save(product);
+    }
+
+    @Transactional
+    public Product updateStoreProduct(String ownerId, String productId, Product updatedProduct) {
+        Store store = getValidStore(ownerId);
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found: " + productId));
+
+        if (!product.getStoreId().equals(store.getId())) {
+            throw new RuntimeException("Forbidden: You cannot modify products that belong to another store.");
+        }
+
+        product.setCategoryId(updatedProduct.getCategoryId());
+        product.setStock(updatedProduct.getStock());
+        product.setSku(updatedProduct.getSku());
+        product.setName(updatedProduct.getName());
+        product.setUnitPrice(updatedProduct.getUnitPrice());
+
+        return productRepository.save(product);
+    }
+
+    @Transactional
+    public void deleteStoreProduct(String ownerId, String productId) {
+        Store store = getValidStore(ownerId);
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found: " + productId));
+
+        if (!product.getStoreId().equals(store.getId())) {
+            throw new RuntimeException("Forbidden: You cannot delete products that belong to another store.");
+        }
+
+        productRepository.delete(product);
+    }
+
     // A13: Get Store Orders
     public List<Order> getStoreOrders(String ownerId) {
         Store store = getValidStore(ownerId);

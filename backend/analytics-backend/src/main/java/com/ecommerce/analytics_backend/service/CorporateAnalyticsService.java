@@ -50,4 +50,9 @@ public class CorporateAnalyticsService {
                 .lowStockCount(lowStock != null ? lowStock : 0L)
                 .build();
     }
+
+    private Store getValidStore(String ownerId) {
+        return storeRepository.findByOwnerId(ownerId)
+                .orElseThrow(() -> new RuntimeException("Store not found for owner with ID: " + ownerId));
+    }
 }
