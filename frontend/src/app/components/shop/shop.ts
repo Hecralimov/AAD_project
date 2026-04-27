@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { ProductService, Product, PageResponse } from '../../services/product.service';
 import { CategoryService, Category } from '../../services/category.service';
 import { CartService } from '../../services/cart.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-shop',
@@ -21,6 +22,8 @@ export class Shop implements OnInit {
   totalElements = 0;
   pageSize = 12;
   isLoading = false;
+  errorMessage = '';
+  categoriesError = '';
 
   selectedCategoryId: string = '';
   searchQuery: string = '';
@@ -30,6 +33,7 @@ export class Shop implements OnInit {
     private productService: ProductService,
     private categoryService: CategoryService,
     private cartService: CartService,
+    private toastService: ToastService,
     private route: ActivatedRoute,
     private router: Router
   ) {}
@@ -37,7 +41,7 @@ export class Shop implements OnInit {
   addToCart(product: Product, event: Event) {
     event.stopPropagation();
     this.cartService.addToCart(product);
-    // Optional: could add a toast notification here
+    this.toastService.success(`${product.name} added to cart.`);
   }
 
   ngOnInit() {
@@ -45,7 +49,10 @@ export class Shop implements OnInit {
       next: (cats) => {
         this.categories = cats;
       },
-      error: (err) => console.error('Error fetching categories', err)
+      error: (err) => {
+        console.error('Error fetching categories', err);
+        this.categoriesError = 'Categories could not be loaded.';
+      }
     });
 
     this.route.queryParams.subscribe(params => {
@@ -59,6 +66,7 @@ export class Shop implements OnInit {
 
   loadProducts() {
     this.isLoading = true;
+    this.errorMessage = '';
     let sortBy = undefined;
     let sortDir = undefined;
 
@@ -90,6 +98,10 @@ export class Shop implements OnInit {
       },
       error: (err) => {
         console.error('Error fetching products', err);
+        this.products = [];
+        this.totalPages = 0;
+        this.totalElements = 0;
+        this.errorMessage = 'Products could not be loaded. Please try again.';
         this.isLoading = false;
       }
     });

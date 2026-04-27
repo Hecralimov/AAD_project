@@ -14,6 +14,15 @@ const authGuard = (role: string): CanActivateFn => {
   };
 };
 
+const loggedInGuard: CanActivateFn = () => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+  if (authService.isLoggedIn()) {
+    return true;
+  }
+  return router.parseUrl('/login');
+};
+
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: Home },
@@ -32,6 +41,11 @@ export const routes: Routes = [
   { 
     path: 'checkout', 
     loadComponent: () => import('./components/checkout/checkout').then(m => m.CheckoutComponent) 
+  },
+  { 
+    path: 'profile', 
+    loadComponent: () => import('./components/profile/profile').then(m => m.ProfileComponent),
+    canActivate: [loggedInGuard]
   },
   { 
     path: 'login', 

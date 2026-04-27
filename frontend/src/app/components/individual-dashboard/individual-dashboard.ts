@@ -4,6 +4,7 @@ import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartOptions } from 'chart.js';
 import { HttpClient } from '@angular/common/http';
 import { OrderService, OrderResponse, ShipmentResponse } from '../../services/order.service';
+import { ToastService } from '../../services/toast.service';
 
 interface IndividualAnalytics {
   totalSpent: number;
@@ -24,6 +25,12 @@ export class IndividualDashboard implements OnInit {
   orders: OrderResponse[] = [];
   selectedTracking: ShipmentResponse | null = null;
   trackingOrderId: string | null = null;
+  loadingAnalytics = false;
+  loadingOrders = false;
+  loadingTrackingOrderId: string | null = null;
+  analyticsError = '';
+  ordersError = '';
+  trackingError = '';
 
   public spendingChartData: ChartConfiguration<'line'>['data'] = {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
@@ -49,7 +56,8 @@ export class IndividualDashboard implements OnInit {
   constructor(
     private http: HttpClient,
     private orderService: OrderService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private toastService: ToastService
   ) {}
 
   ngOnInit() {
@@ -64,6 +72,8 @@ export class IndividualDashboard implements OnInit {
   }
 
   fetchAnalytics() {
+    this.loadingAnalytics = true;
+    this.analyticsError = '';
     this.http.get<IndividualAnalytics>('http://localhost:8080/api/individual/analytics').subscribe({
       next: (data) => {
         this.kpis = [
@@ -84,19 +94,32 @@ export class IndividualDashboard implements OnInit {
           };
         }
 
+        this.loadingAnalytics = false;
         this.cdr.detectChanges();
       },
-      error: (err) => console.error('Failed to fetch individual analytics', err)
+      error: (err) => {
+        console.error('Failed to fetch individual analytics', err);
+        this.analyticsError = 'Shopping analytics could not be loaded.';
+        this.loadingAnalytics = false;
+      }
     });
   }
 
   loadOrders() {
+    this.loadingOrders = true;
+    this.ordersError = '';
     this.orderService.getMyOrders().subscribe({
       next: (orders) => {
         this.orders = orders;
+        this.loadingOrders = false;
         this.cdr.detectChanges();
       },
-      error: (err) => console.error('Failed to fetch orders', err)
+      error: (err) => {
+        console.error('Failed to fetch orders', err);
+        this.orders = [];
+        this.ordersError = 'Orders could not be loaded.';
+        this.loadingOrders = false;
+      }
     });
   }
 
@@ -107,14 +130,20 @@ export class IndividualDashboard implements OnInit {
       return;
     }
     this.trackingOrderId = orderId;
+    this.loadingTrackingOrderId = orderId;
+    this.trackingError = '';
     this.orderService.getOrderTracking(orderId).subscribe({
       next: (tracking) => {
         this.selectedTracking = tracking;
+        this.loadingTrackingOrderId = null;
         this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Failed to fetch tracking', err);
         this.selectedTracking = null;
+        this.loadingTrackingOrderId = null;
+        this.trackingError = 'Shipment tracking is not available for this order yet.';
+        this.toastService.error(this.trackingError);
       }
     });
   }

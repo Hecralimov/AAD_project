@@ -2,6 +2,40 @@
 
 ## April 27, 2026
 
+### B19 - UI Polish (frontend-only)
+
+- Added reusable `ToastService` and global `ToastContainerComponent`.
+- Mounted toast container at the app root so frontend feedback can appear across pages.
+- Replaced blocking HTTP interceptor alerts with non-blocking error toasts for 401, 403, and 500-level failures.
+- Added shop page polish:
+  - Add-to-cart success toast.
+  - Product loading copy with spinner.
+  - Product load error state with retry action.
+  - Empty product result state with clear filters action.
+  - Category load inline error.
+  - Smoother product card transitions.
+- Added individual dashboard polish:
+  - Analytics loading and error states with retry.
+  - Orders loading indicator and inline error retry.
+  - Improved "No orders yet" empty state.
+  - Shipment tracking button spinner and tracking failure toast.
+  - Small table/card transition polish.
+- No backend changes were made.
+- Per instruction, did not run frontend/backend/database servers and did not run final tests/builds.
+
+### B18 - Profile Management Page (frontend-only)
+
+- Added protected `/profile` route using the existing lazy standalone component pattern.
+- Added `ProfileComponent` with account summary, editable email form, password change form, loading state, validation, and inline success/error feedback.
+- Added `Profile` frontend model and `ProfileService` for profile fetch/update and password change calls.
+- Updated auth state to persist and expose the signed-in email from login/register responses, with JWT email fallback for restored sessions.
+- Added a navbar profile icon linking signed-in users to `/profile`.
+- No backend changes were made. Frontend expects:
+  - `GET /api/profile` returning `{ id?, email, roleType, active? }`
+  - `PUT /api/profile` accepting `{ email }`
+  - `PUT /api/profile/password` accepting `{ currentPassword, newPassword }`
+- Per instruction, did not run frontend/backend/database servers and did not run final tests/builds.
+
 ### B17 - Corporate Date Range Picker (frontend-only)
 
 - Added corporate dashboard date range controls on the dashboard tab.

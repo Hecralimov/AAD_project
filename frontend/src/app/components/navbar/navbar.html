@@ -28,6 +28,9 @@
                     <span class="role-text">{{ authService.currentUserRole() }}</span>
                 </div>
             </a>
+            <button class="icon-btn" routerLink="/profile" title="Profile">
+                <span class="material-icons">manage_accounts</span>
+            </button>
             <button (click)="logout()" class="btn-outline">Logout</button>
         </div>
         }
