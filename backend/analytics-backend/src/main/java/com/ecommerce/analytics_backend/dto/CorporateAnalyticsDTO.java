@@ -8,8 +8,6 @@ import java.math.BigDecimal;
 @Builder
 public class CorporateAnalyticsDTO {
     private BigDecimal totalRevenue;
-    private Long orderCount;
+    private Long totalOrders;
     private Long lowStockCount;
-    // We will leave 'topProducts' out for this immediate step to keep the scope tight, 
-    // or you can add a List<String> here later.
 }
