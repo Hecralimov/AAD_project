@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 export interface Review {
   id: string;
@@ -26,7 +27,9 @@ export class ReviewService {
   constructor(private http: HttpClient) {}
 
   getReviewsForProduct(productId: string): Observable<Review[]> {
-    return this.http.get<Review[]>(`${this.apiUrl}?productId=${productId}`);
+    return this.http.get<Review[]>(`${this.apiUrl}?productId=${productId}`).pipe(
+      map(reviews => reviews.filter(review => review.productId === productId))
+    );
   }
 
   submitReview(request: ReviewRequest): Observable<Review> {

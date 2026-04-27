@@ -171,6 +171,14 @@
   font-weight: 700;
 }
 
+.success-message {
+  color: #047857;
+}
+
+.error-message {
+  color: #b91c1c;
+}
+
 .reviews-section {
   display: grid;
   grid-template-columns: minmax(300px, 420px) 1fr;
@@ -205,6 +213,10 @@
   cursor: pointer;
 }
 
+.star-picker button:hover {
+  transform: translateY(-1px);
+}
+
 .review-form textarea {
   width: 100%;
   resize: vertical;
@@ -214,6 +226,15 @@
   font: inherit;
   color: #0f172a;
   margin-bottom: 1rem;
+}
+
+.review-meta {
+  display: flex;
+  justify-content: flex-end;
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin: -0.55rem 0 1rem;
 }
 
 .submit-review {
@@ -241,6 +262,18 @@
 .error-state {
   color: #64748b;
   padding: 2rem 0;
+}
+
+.loading-state {
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  color: #64748b;
+  padding: 2rem 0;
+}
+
+.loading-state .material-icons {
+  color: #2563eb;
 }
 
 .review-item {
@@ -283,6 +316,10 @@
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
 }
 
 @media (max-width: 860px) {

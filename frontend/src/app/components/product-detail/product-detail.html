@@ -57,6 +57,7 @@
     <div class="review-form">
       <h2>Write a Review</h2>
       <p class="review-note" *ngIf="!authService.isLoggedIn()">Log in as a customer who purchased this product to submit a review.</p>
+      <p class="review-note" *ngIf="authService.isLoggedIn() && !authService.hasRole('Individual')">Reviews can only be submitted from individual customer accounts.</p>
 
       <div class="star-picker" aria-label="Rating">
         @for (star of stars; track star) {
@@ -65,7 +66,8 @@
             (mouseenter)="hoverRating = star"
             (mouseleave)="hoverRating = 0"
             (click)="selectedRating = star"
-            [class.active]="star <= (hoverRating || selectedRating)">
+            [class.active]="star <= (hoverRating || selectedRating)"
+            [attr.aria-label]="star + ' star rating'">
             <span class="material-icons">star</span>
           </button>
         }
@@ -73,13 +75,18 @@
 
       <textarea
         rows="4"
+        maxlength="500"
         placeholder="Share what stood out about this product..."
         [(ngModel)]="reviewComment"></textarea>
 
-      <button class="submit-review" type="button" (click)="submitReview()" [disabled]="isSubmittingReview">
+      <div class="review-meta">
+        <span>{{ reviewComment.trim().length }}/{{ maxReviewLength }}</span>
+      </div>
+
+      <button class="submit-review" type="button" (click)="submitReview()" [disabled]="!canSubmitReview()">
         {{ isSubmittingReview ? 'Submitting...' : 'Submit Review' }}
       </button>
-      <p class="inline-message" *ngIf="reviewMessage">{{ reviewMessage }}</p>
+      <p class="inline-message" [class.success-message]="reviewMessageType === 'success'" [class.error-message]="reviewMessageType === 'error'" *ngIf="reviewMessage">{{ reviewMessage }}</p>
     </div>
 
     <div class="reviews-list">
@@ -88,7 +95,12 @@
         <span>{{ reviews.length }}</span>
       </div>
 
-      <div class="empty-state" *ngIf="reviews.length === 0">
+      <div class="loading-state" *ngIf="reviewsLoading">
+        <span class="material-icons spin">sync</span>
+        <p>Loading reviews...</p>
+      </div>
+
+      <div class="empty-state" *ngIf="!reviewsLoading && reviews.length === 0">
         No reviews yet.
       </div>
 

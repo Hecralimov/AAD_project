@@ -23,11 +23,14 @@ export class ProductDetailComponent implements OnInit {
   reviewComment = '';
   isLoading = true;
   isSubmittingReview = false;
+  reviewsLoading = false;
   errorMessage = '';
   cartMessage = '';
   reviewMessage = '';
+  reviewMessageType: 'info' | 'success' | 'error' = 'info';
 
   readonly stars = [1, 2, 3, 4, 5];
+  readonly maxReviewLength = 500;
 
   constructor(
     private route: ActivatedRoute,
@@ -64,12 +67,17 @@ export class ProductDetailComponent implements OnInit {
   }
 
   loadReviews(productId: string) {
+    this.reviewsLoading = true;
     this.reviewService.getReviewsForProduct(productId).subscribe({
       next: (reviews) => {
         this.reviews = reviews;
+        this.reviewsLoading = false;
       },
       error: () => {
         this.reviews = [];
+        this.reviewsLoading = false;
+        this.reviewMessage = 'Reviews could not be loaded right now.';
+        this.reviewMessageType = 'error';
       }
     });
   }
@@ -90,13 +98,27 @@ export class ProductDetailComponent implements OnInit {
   }
 
   submitReview() {
+    if (!this.authService.isLoggedIn() || !this.authService.hasRole('Individual')) {
+      this.reviewMessage = 'Log in with an individual account that purchased this product to submit a review.';
+      this.reviewMessageType = 'error';
+      return;
+    }
+
     if (!this.product || this.selectedRating === 0 || !this.reviewComment.trim()) {
       this.reviewMessage = 'Choose a rating and write a short review.';
+      this.reviewMessageType = 'error';
+      return;
+    }
+
+    if (this.reviewComment.trim().length > this.maxReviewLength) {
+      this.reviewMessage = `Keep your review under ${this.maxReviewLength} characters.`;
+      this.reviewMessageType = 'error';
       return;
     }
 
     this.isSubmittingReview = true;
     this.reviewMessage = '';
+    this.reviewMessageType = 'info';
 
     this.reviewService.submitReview({
       productId: this.product.id,
@@ -109,10 +131,12 @@ export class ProductDetailComponent implements OnInit {
         this.hoverRating = 0;
         this.reviewComment = '';
         this.reviewMessage = 'Thanks, your review was submitted.';
+        this.reviewMessageType = 'success';
         this.isSubmittingReview = false;
       },
       error: (err) => {
         this.reviewMessage = err?.error?.message || 'Only customers who bought this product can review it.';
+        this.reviewMessageType = 'error';
         this.isSubmittingReview = false;
       }
     });
@@ -122,5 +146,16 @@ export class ProductDetailComponent implements OnInit {
     if (this.reviews.length === 0) return 0;
     const total = this.reviews.reduce((sum, review) => sum + review.rating, 0);
     return Math.round((total / this.reviews.length) * 10) / 10;
+  }
+
+  canSubmitReview(): boolean {
+    return Boolean(
+      this.authService.isLoggedIn() &&
+      this.authService.hasRole('Individual') &&
+      this.selectedRating > 0 &&
+      this.reviewComment.trim().length > 0 &&
+      this.reviewComment.trim().length <= this.maxReviewLength &&
+      !this.isSubmittingReview
+    );
   }
 }

@@ -27,6 +27,10 @@
         <span class="material-icons">storefront</span>
         Stores
       </a>
+      <a href="javascript:void(0)" class="nav-item" [class.active]="currentTab === 'categories'" (click)="setTab('categories')">
+        <span class="material-icons">category</span>
+        Categories
+      </a>
       <a href="javascript:void(0)" class="nav-item">
         <span class="material-icons">smart_toy</span>
         AI Assistant
@@ -48,11 +52,13 @@
       <div class="header-title">
         <h1>
           {{ currentTab === 'dashboard' ? 'Overview Dashboard' : 
-             currentTab === 'users' ? 'User Management' : 'Store Management' }}
+             currentTab === 'users' ? 'User Management' :
+             currentTab === 'stores' ? 'Store Management' : 'Category Management' }}
         </h1>
         <p>
           {{ currentTab === 'dashboard' ? "Welcome back, here's what's happening today." : 
-             currentTab === 'users' ? "Manage system users and access levels." : "Manage marketplace stores and operations." }}
+             currentTab === 'users' ? "Manage system users and access levels." :
+             currentTab === 'stores' ? "Manage marketplace stores and operations." : "Manage product categories shown across the shop." }}
         </p>
       </div>
       <div class="header-actions">
@@ -220,6 +226,127 @@
         </div>
       </div>
     </section>
+    } @else if (currentTab === 'categories') {
+    <section class="users-section">
+      <div class="users-card">
+        <div class="card-header">
+          <h2>All Categories</h2>
+          <button class="btn-primary" (click)="openAddCategoryModal()">
+            <span class="material-icons">add</span> Add Category
+          </button>
+        </div>
+        @if (categoryError) {
+        <div class="alert alert-error">{{ categoryError }}</div>
+        }
+        @if (categorySuccess) {
+        <div class="alert alert-success">{{ categorySuccess }}</div>
+        }
+        <div class="table-responsive">
+          @if (categoriesLoading) {
+          <div class="loading-state">
+            <span class="material-icons spin">sync</span>
+            <p>Loading categories...</p>
+          </div>
+          } @else {
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>ID</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (category of categories; track category.id) {
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <div class="category-avatar">
+                      <span class="material-icons">category</span>
+                    </div>
+                    <div class="user-details">
+                      <span class="user-email">{{ category.name }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="sku-badge">{{ category.id.substring(0, 8) }}</span></td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="btn-icon-small edit" (click)="openEditCategoryModal(category)" title="Edit">
+                      <span class="material-icons">edit</span>
+                    </button>
+                    <button class="btn-icon-small delete" (click)="openDeleteCategoryModal(category)" title="Delete">
+                      <span class="material-icons">delete</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              } @empty {
+              <tr>
+                <td colspan="3" class="empty-state">
+                  <span class="material-icons">category</span>
+                  <p>No categories found.</p>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+          }
+        </div>
+      </div>
+    </section>
     }
   </main>
 </div>
+
+@if (showCategoryModal) {
+<div class="modal-overlay" (click)="closeCategoryModal()">
+  <div class="modal-content modal-sm" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ isCategoryEditMode ? 'Edit Category' : 'Add Category' }}</h2>
+      <button class="btn-icon-small" (click)="closeCategoryModal()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="categoryName">Category Name</label>
+        <input id="categoryName" type="text" [(ngModel)]="categoryForm.name" maxlength="80" placeholder="Enter category name">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeCategoryModal()">Cancel</button>
+      <button class="btn-primary" (click)="saveCategory()" [disabled]="isSavingCategory || !categoryForm.name.trim()">
+        <span class="material-icons">{{ isCategoryEditMode ? 'save' : 'add' }}</span>
+        {{ isSavingCategory ? 'Saving...' : (isCategoryEditMode ? 'Save Changes' : 'Add Category') }}
+      </button>
+    </div>
+  </div>
+</div>
+}
+
+@if (showCategoryDeleteModal) {
+<div class="modal-overlay" (click)="closeCategoryDeleteModal()">
+  <div class="modal-content modal-sm" (click)="$event.stopPropagation()">
+    <div class="modal-header modal-header-danger">
+      <h2>Delete Category</h2>
+      <button class="btn-icon-small" (click)="closeCategoryDeleteModal()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="delete-warning">
+        <span class="material-icons warning-icon">warning</span>
+        <p>Delete <strong>{{ deletingCategory?.name }}</strong>?</p>
+        <p class="warning-sub">Products linked to this category may need reassignment.</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeCategoryDeleteModal()">Cancel</button>
+      <button class="btn-danger" (click)="confirmDeleteCategory()" [disabled]="isDeletingCategory">
+        <span class="material-icons">delete</span> {{ isDeletingCategory ? 'Deleting...' : 'Delete' }}
+      </button>
+    </div>
+  </div>
+</div>
+}

@@ -1,16 +1,18 @@
 import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartOptions, Chart } from 'chart.js';
 import { AnalyticsService } from '../../services/analytics.service';
 import { UserService } from '../../services/user.service';
 import { StoreService } from '../../services/store.service';
+import { CategoryService, Category } from '../../services/category.service';
 import { DashboardAnalytics } from '../../models/analytics';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective],
+  imports: [CommonModule, FormsModule, BaseChartDirective],
   templateUrl: './admin-dashboard.html',
   styleUrl: './admin-dashboard.css',
 })
@@ -18,6 +20,18 @@ export class AdminDashboard implements OnInit {
   currentTab: string = 'dashboard';
   users: any[] = []; // From UserService
   stores: any[] = []; // From StoreService
+  categories: Category[] = [];
+  categoriesLoading = false;
+  categoryError = '';
+  categorySuccess = '';
+  showCategoryModal = false;
+  showCategoryDeleteModal = false;
+  isCategoryEditMode = false;
+  isSavingCategory = false;
+  isDeletingCategory = false;
+  categoryForm = { name: '' };
+  editingCategoryId: string | null = null;
+  deletingCategory: Category | null = null;
 
   // Chart'ları manuel güncellemek için referans alıyoruz
   @ViewChild(BaseChartDirective) chart: BaseChartDirective | undefined;
@@ -26,6 +40,7 @@ export class AdminDashboard implements OnInit {
     private analyticsService: AnalyticsService,
     private userService: UserService,
     private storeService: StoreService,
+    private categoryService: CategoryService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -39,7 +54,110 @@ export class AdminDashboard implements OnInit {
       this.loadUsers();
     } else if (tab === 'stores') {
       this.loadStores();
+    } else if (tab === 'categories') {
+      this.loadCategories();
     }
+  }
+
+  loadCategories() {
+    this.categoriesLoading = true;
+    this.categoryError = '';
+    this.categoryService.getCategories().subscribe({
+      next: (categories) => {
+        this.categories = categories;
+        this.categoriesLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to fetch categories', err);
+        this.categoryError = 'Could not load categories.';
+        this.categoriesLoading = false;
+      }
+    });
+  }
+
+  openAddCategoryModal() {
+    this.isCategoryEditMode = false;
+    this.editingCategoryId = null;
+    this.categoryForm = { name: '' };
+    this.categoryError = '';
+    this.categorySuccess = '';
+    this.showCategoryModal = true;
+  }
+
+  openEditCategoryModal(category: Category) {
+    this.isCategoryEditMode = true;
+    this.editingCategoryId = category.id;
+    this.categoryForm = { name: category.name };
+    this.categoryError = '';
+    this.categorySuccess = '';
+    this.showCategoryModal = true;
+  }
+
+  closeCategoryModal() {
+    this.showCategoryModal = false;
+  }
+
+  saveCategory() {
+    const name = this.categoryForm.name.trim();
+    if (!name) {
+      this.categoryError = 'Category name is required.';
+      return;
+    }
+
+    this.isSavingCategory = true;
+    this.categoryError = '';
+    this.categorySuccess = '';
+
+    const request = this.isCategoryEditMode && this.editingCategoryId
+      ? this.categoryService.updateCategory(this.editingCategoryId, { name })
+      : this.categoryService.createCategory({ name });
+
+    request.subscribe({
+      next: () => {
+        this.showCategoryModal = false;
+        this.categorySuccess = this.isCategoryEditMode ? 'Category updated.' : 'Category added.';
+        this.isSavingCategory = false;
+        this.loadCategories();
+      },
+      error: (err) => {
+        console.error('Failed to save category', err);
+        this.categoryError = 'Could not save category. Backend category create/update support may be missing.';
+        this.isSavingCategory = false;
+      }
+    });
+  }
+
+  openDeleteCategoryModal(category: Category) {
+    this.deletingCategory = category;
+    this.categoryError = '';
+    this.categorySuccess = '';
+    this.showCategoryDeleteModal = true;
+  }
+
+  closeCategoryDeleteModal() {
+    this.showCategoryDeleteModal = false;
+    this.deletingCategory = null;
+  }
+
+  confirmDeleteCategory() {
+    if (!this.deletingCategory?.id) return;
+
+    this.isDeletingCategory = true;
+    this.categoryService.deleteCategory(this.deletingCategory.id).subscribe({
+      next: () => {
+        this.showCategoryDeleteModal = false;
+        this.deletingCategory = null;
+        this.categorySuccess = 'Category deleted.';
+        this.isDeletingCategory = false;
+        this.loadCategories();
+      },
+      error: (err) => {
+        console.error('Failed to delete category', err);
+        this.categoryError = 'Could not delete category. Backend category delete support may be missing.';
+        this.isDeletingCategory = false;
+      }
+    });
   }
 
   loadStores() {
