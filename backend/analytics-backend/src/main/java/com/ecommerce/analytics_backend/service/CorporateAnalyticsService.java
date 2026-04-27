@@ -22,10 +22,9 @@ public class CorporateAnalyticsService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public CorporateAnalyticsDTO getAnalyticsForOwner(String ownerId, LocalDate startDate, LocalDate endDate) {
-        Store store = storeRepository.findByOwnerId(ownerId)
-                .orElseThrow(() -> new RuntimeException("No store found for user ID: " + ownerId));
+        Store store = getValidStore(ownerId);
 
         String storeId = store.getId();
         BigDecimal revenue;

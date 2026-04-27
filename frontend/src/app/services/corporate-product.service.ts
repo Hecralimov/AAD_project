@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 export interface CorporateProduct {
   id?: string;
@@ -12,6 +13,14 @@ export interface CorporateProduct {
   storeId?: string;
 }
 
+interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -21,7 +30,9 @@ export class CorporateProductService {
   constructor(private http: HttpClient) { }
 
   getProducts(): Observable<CorporateProduct[]> {
-    return this.http.get<CorporateProduct[]>(this.apiUrl);
+    return this.http.get<PageResponse<CorporateProduct>>(this.apiUrl).pipe(
+      map(response => response.content)
+    );
   }
 
   createProduct(product: CorporateProduct): Observable<CorporateProduct> {

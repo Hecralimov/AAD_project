@@ -1,0 +1,124 @@
+<main class="product-detail-page">
+  <a routerLink="/products" class="back-link">
+    <span class="material-icons">arrow_back</span>
+    Back to products
+  </a>
+
+  <div class="loader-container" *ngIf="isLoading">
+    <div class="spinner"></div>
+  </div>
+
+  <section class="detail-layout" *ngIf="!isLoading && product">
+    <div class="product-media">
+      <img [src]="product.imageUrl || 'https://via.placeholder.com/640x760?text=Product'" [alt]="product.name">
+    </div>
+
+    <div class="product-summary">
+      <span class="sku">SKU {{ product.sku || 'N/A' }}</span>
+      <h1>{{ product.name }}</h1>
+
+      <div class="rating-row">
+        <span class="material-icons">star</span>
+        <strong>{{ getAverageRating() || 'New' }}</strong>
+        <span>{{ reviews.length }} review{{ reviews.length === 1 ? '' : 's' }}</span>
+      </div>
+
+      <p class="description">{{ product.description }}</p>
+
+      <div class="purchase-panel">
+        <div>
+          <span class="price">${{ product.unitPrice }}</span>
+          <p class="stock" [class.out]="product.stock <= 0">
+            {{ product.stock > 0 ? product.stock + ' in stock' : 'Out of stock' }}
+          </p>
+        </div>
+
+        <div class="quantity-control" *ngIf="product.stock > 0">
+          <button type="button" (click)="updateQuantity(-1)" [disabled]="quantity === 1">
+            <span class="material-icons">remove</span>
+          </button>
+          <span>{{ quantity }}</span>
+          <button type="button" (click)="updateQuantity(1)" [disabled]="quantity >= product.stock">
+            <span class="material-icons">add</span>
+          </button>
+        </div>
+
+        <button class="cart-button" type="button" (click)="addToCart()" [disabled]="product.stock <= 0">
+          <span class="material-icons">shopping_cart</span>
+          Add to Cart
+        </button>
+
+        <p class="inline-message" *ngIf="cartMessage">{{ cartMessage }}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="reviews-section" *ngIf="!isLoading && product">
+    <div class="review-form">
+      <h2>Write a Review</h2>
+      <p class="review-note" *ngIf="!authService.isLoggedIn()">Log in as a customer who purchased this product to submit a review.</p>
+      <p class="review-note" *ngIf="authService.isLoggedIn() && !authService.hasRole('Individual')">Reviews can only be submitted from individual customer accounts.</p>
+
+      <div class="star-picker" aria-label="Rating">
+        @for (star of stars; track star) {
+          <button
+            type="button"
+            (mouseenter)="hoverRating = star"
+            (mouseleave)="hoverRating = 0"
+            (click)="selectedRating = star"
+            [class.active]="star <= (hoverRating || selectedRating)"
+            [attr.aria-label]="star + ' star rating'">
+            <span class="material-icons">star</span>
+          </button>
+        }
+      </div>
+
+      <textarea
+        rows="4"
+        maxlength="500"
+        placeholder="Share what stood out about this product..."
+        [(ngModel)]="reviewComment"></textarea>
+
+      <div class="review-meta">
+        <span>{{ reviewComment.trim().length }}/{{ maxReviewLength }}</span>
+      </div>
+
+      <button class="submit-review" type="button" (click)="submitReview()" [disabled]="!canSubmitReview()">
+        {{ isSubmittingReview ? 'Submitting...' : 'Submit Review' }}
+      </button>
+      <p class="inline-message" [class.success-message]="reviewMessageType === 'success'" [class.error-message]="reviewMessageType === 'error'" *ngIf="reviewMessage">{{ reviewMessage }}</p>
+    </div>
+
+    <div class="reviews-list">
+      <div class="reviews-header">
+        <h2>Customer Reviews</h2>
+        <span>{{ reviews.length }}</span>
+      </div>
+
+      <div class="loading-state" *ngIf="reviewsLoading">
+        <span class="material-icons spin">sync</span>
+        <p>Loading reviews...</p>
+      </div>
+
+      <div class="empty-state" *ngIf="!reviewsLoading && reviews.length === 0">
+        No reviews yet.
+      </div>
+
+      @for (review of reviews; track review.id) {
+        <article class="review-item">
+          <div class="review-stars">
+            @for (star of stars; track star) {
+              <span class="material-icons" [class.muted]="star > review.rating">star</span>
+            }
+          </div>
+          <p>{{ review.comment }}</p>
+          <span class="sentiment" *ngIf="review.sentiment">{{ review.sentiment }}</span>
+        </article>
+      }
+    </div>
+  </section>
+
+  <div class="error-state" *ngIf="!isLoading && !product">
+    {{ errorMessage }}
+  </div>
+</main>

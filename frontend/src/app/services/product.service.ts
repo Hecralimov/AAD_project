@@ -30,6 +30,10 @@ export class ProductService {
 
   constructor(private http: HttpClient) {}
 
+  getProductById(id: string): Observable<Product> {
+    return this.http.get<Product>(`${this.apiUrl}/${id}`);
+  }
+
   getProducts(page: number = 0, size: number = 12, categoryId?: string, search?: string, sortBy?: string, sortDir?: string): Observable<PageResponse<Product>> {
     let url = `${this.apiUrl}?page=${page}&size=${size}`;
     if (categoryId) {

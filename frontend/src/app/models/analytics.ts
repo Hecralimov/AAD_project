@@ -24,3 +24,11 @@ export interface MonthlyRevenue {
     month: string;
     amount: number;
 }
+
+export interface StoreComparison {
+    storeId: string;
+    storeName: string;
+    totalRevenue: number;
+    totalOrders: number;
+    averageRating: number;
+}

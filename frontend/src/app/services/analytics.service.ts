@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin, map } from 'rxjs';
-import { DashboardAnalytics } from '../models/analytics';
+import { DashboardAnalytics, StoreComparison } from '../models/analytics';
 
 @Injectable({
   providedIn: 'root'
@@ -45,5 +45,9 @@ export class AnalyticsService {
         } as DashboardAnalytics;
       })
     );
+  }
+
+  getStoreComparison(): Observable<StoreComparison[]> {
+    return this.http.get<StoreComparison[]>(`${this.apiUrl}/store-comparison`);
   }
 }

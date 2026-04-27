@@ -1,16 +1,18 @@
 import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartOptions, Chart } from 'chart.js';
 import { AnalyticsService } from '../../services/analytics.service';
 import { UserService } from '../../services/user.service';
 import { StoreService } from '../../services/store.service';
-import { DashboardAnalytics } from '../../models/analytics';
+import { CategoryService, Category } from '../../services/category.service';
+import { DashboardAnalytics, StoreComparison } from '../../models/analytics';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective],
+  imports: [CommonModule, FormsModule, BaseChartDirective],
   templateUrl: './admin-dashboard.html',
   styleUrl: './admin-dashboard.css',
 })
@@ -18,6 +20,22 @@ export class AdminDashboard implements OnInit {
   currentTab: string = 'dashboard';
   users: any[] = []; // From UserService
   stores: any[] = []; // From StoreService
+  categories: Category[] = [];
+  categoriesLoading = false;
+  categoryError = '';
+  categorySuccess = '';
+  showCategoryModal = false;
+  showCategoryDeleteModal = false;
+  isCategoryEditMode = false;
+  isSavingCategory = false;
+  isDeletingCategory = false;
+  categoryForm = { name: '' };
+  editingCategoryId: string | null = null;
+  deletingCategory: Category | null = null;
+
+  storeComparison: StoreComparison[] = [];
+  comparisonLoading = false;
+  comparisonError = '';
 
   // Chart'ları manuel güncellemek için referans alıyoruz
   @ViewChild(BaseChartDirective) chart: BaseChartDirective | undefined;
@@ -26,6 +44,7 @@ export class AdminDashboard implements OnInit {
     private analyticsService: AnalyticsService,
     private userService: UserService,
     private storeService: StoreService,
+    private categoryService: CategoryService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -39,7 +58,180 @@ export class AdminDashboard implements OnInit {
       this.loadUsers();
     } else if (tab === 'stores') {
       this.loadStores();
+    } else if (tab === 'categories') {
+      this.loadCategories();
+    } else if (tab === 'comparison') {
+      this.loadStoreComparison();
     }
+  }
+
+  getHeaderTitle(): string {
+    if (this.currentTab === 'dashboard') return 'Overview Dashboard';
+    if (this.currentTab === 'users') return 'User Management';
+    if (this.currentTab === 'stores') return 'Store Management';
+    if (this.currentTab === 'categories') return 'Category Management';
+    if (this.currentTab === 'comparison') return 'Store Comparison';
+    return 'Overview Dashboard';
+  }
+
+  getHeaderSubtitle(): string {
+    if (this.currentTab === 'dashboard') return "Welcome back, here's what's happening today.";
+    if (this.currentTab === 'users') return 'Manage system users and access levels.';
+    if (this.currentTab === 'stores') return 'Manage marketplace stores and operations.';
+    if (this.currentTab === 'categories') return 'Manage product categories shown across the shop.';
+    if (this.currentTab === 'comparison') return 'Compare store revenue, order volume, and average rating.';
+    return '';
+  }
+
+  loadStoreComparison() {
+    this.comparisonLoading = true;
+    this.comparisonError = '';
+    this.analyticsService.getStoreComparison().subscribe({
+      next: (comparison) => {
+        this.storeComparison = comparison;
+        this.updateStoreComparisonChart(comparison);
+        this.comparisonLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to fetch store comparison', err);
+        this.comparisonError = 'Could not load store comparison data.';
+        this.comparisonLoading = false;
+      }
+    });
+  }
+
+  updateStoreComparisonChart(comparison: StoreComparison[]) {
+    this.storeComparisonChartData = {
+      labels: comparison.map(store => store.storeName || store.storeId.substring(0, 8)),
+      datasets: [
+        {
+          data: comparison.map(store => store.totalRevenue || 0),
+          label: 'Revenue ($)',
+          backgroundColor: '#4f46e5',
+          borderRadius: 6,
+          yAxisID: 'revenue'
+        },
+        {
+          data: comparison.map(store => store.totalOrders || 0),
+          label: 'Orders',
+          backgroundColor: '#0ea5e9',
+          borderRadius: 6,
+          yAxisID: 'orders'
+        }
+      ]
+    };
+  }
+
+  getTopStore(): StoreComparison | null {
+    if (this.storeComparison.length === 0) return null;
+    return [...this.storeComparison].sort((a, b) => (b.totalRevenue || 0) - (a.totalRevenue || 0))[0];
+  }
+
+  getBestRating(): number {
+    if (this.storeComparison.length === 0) return 0;
+    return Math.max(...this.storeComparison.map(store => store.averageRating || 0));
+  }
+
+  loadCategories() {
+    this.categoriesLoading = true;
+    this.categoryError = '';
+    this.categoryService.getCategories().subscribe({
+      next: (categories) => {
+        this.categories = categories;
+        this.categoriesLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to fetch categories', err);
+        this.categoryError = 'Could not load categories.';
+        this.categoriesLoading = false;
+      }
+    });
+  }
+
+  openAddCategoryModal() {
+    this.isCategoryEditMode = false;
+    this.editingCategoryId = null;
+    this.categoryForm = { name: '' };
+    this.categoryError = '';
+    this.categorySuccess = '';
+    this.showCategoryModal = true;
+  }
+
+  openEditCategoryModal(category: Category) {
+    this.isCategoryEditMode = true;
+    this.editingCategoryId = category.id;
+    this.categoryForm = { name: category.name };
+    this.categoryError = '';
+    this.categorySuccess = '';
+    this.showCategoryModal = true;
+  }
+
+  closeCategoryModal() {
+    this.showCategoryModal = false;
+  }
+
+  saveCategory() {
+    const name = this.categoryForm.name.trim();
+    if (!name) {
+      this.categoryError = 'Category name is required.';
+      return;
+    }
+
+    this.isSavingCategory = true;
+    this.categoryError = '';
+    this.categorySuccess = '';
+
+    const request = this.isCategoryEditMode && this.editingCategoryId
+      ? this.categoryService.updateCategory(this.editingCategoryId, { name })
+      : this.categoryService.createCategory({ name });
+
+    request.subscribe({
+      next: () => {
+        this.showCategoryModal = false;
+        this.categorySuccess = this.isCategoryEditMode ? 'Category updated.' : 'Category added.';
+        this.isSavingCategory = false;
+        this.loadCategories();
+      },
+      error: (err) => {
+        console.error('Failed to save category', err);
+        this.categoryError = 'Could not save category. Backend category create/update support may be missing.';
+        this.isSavingCategory = false;
+      }
+    });
+  }
+
+  openDeleteCategoryModal(category: Category) {
+    this.deletingCategory = category;
+    this.categoryError = '';
+    this.categorySuccess = '';
+    this.showCategoryDeleteModal = true;
+  }
+
+  closeCategoryDeleteModal() {
+    this.showCategoryDeleteModal = false;
+    this.deletingCategory = null;
+  }
+
+  confirmDeleteCategory() {
+    if (!this.deletingCategory?.id) return;
+
+    this.isDeletingCategory = true;
+    this.categoryService.deleteCategory(this.deletingCategory.id).subscribe({
+      next: () => {
+        this.showCategoryDeleteModal = false;
+        this.deletingCategory = null;
+        this.categorySuccess = 'Category deleted.';
+        this.isDeletingCategory = false;
+        this.loadCategories();
+      },
+      error: (err) => {
+        console.error('Failed to delete category', err);
+        this.categoryError = 'Could not delete category. Backend category delete support may be missing.';
+        this.isDeletingCategory = false;
+      }
+    });
   }
 
   loadStores() {
@@ -163,6 +355,43 @@ export class AdminDashboard implements OnInit {
     plugins: { legend: { display: false } },
     scales: {
       y: { beginAtZero: true, grid: { color: '#e5e7eb' } },
+      x: { grid: { display: false } }
+    }
+  };
+
+  public storeComparisonChartData: ChartConfiguration<'bar'>['data'] = {
+    labels: [],
+    datasets: []
+  };
+
+  public storeComparisonChartOptions: ChartOptions<'bar'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        labels: { usePointStyle: true }
+      }
+    },
+    scales: {
+      revenue: {
+        type: 'linear',
+        position: 'left',
+        beginAtZero: true,
+        grid: { color: '#e5e7eb' },
+        ticks: {
+          callback: (value) => '$' + Number(value).toLocaleString()
+        }
+      },
+      orders: {
+        type: 'linear',
+        position: 'right',
+        beginAtZero: true,
+        grid: { drawOnChartArea: false },
+        ticks: {
+          precision: 0
+        }
+      },
       x: { grid: { display: false } }
     }
   };
