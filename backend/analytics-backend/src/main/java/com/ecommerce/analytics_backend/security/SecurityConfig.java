@@ -53,7 +53,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/individual/**").hasRole("INDIVIDUAL")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/corporate/**").hasRole("CORPORATE")
-                        .requestMatchers("/api/products/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/orders/**").hasRole("INDIVIDUAL")
                         .requestMatchers(HttpMethod.POST, "/api/orders/**").hasRole("INDIVIDUAL")
@@ -61,8 +61,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/analytics/corporate/**").hasRole("CORPORATE")
                         .requestMatchers(HttpMethod.GET, "/api/analytics/individual/**").hasRole("INDIVIDUAL")
                         .anyRequest().authenticated())
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

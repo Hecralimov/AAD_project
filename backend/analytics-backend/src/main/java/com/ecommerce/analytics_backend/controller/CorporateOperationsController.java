@@ -20,7 +20,7 @@ import com.ecommerce.analytics_backend.model.Order;
 import com.ecommerce.analytics_backend.model.Product;
 import com.ecommerce.analytics_backend.model.User;
 import com.ecommerce.analytics_backend.repository.UserRepository;
-import com.ecommerce.analytics_backend.service.CorporateAnalyticsService;
+import com.ecommerce.analytics_backend.service.CorporateOperationsService;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ import lombok.RequiredArgsConstructor;
 public class CorporateOperationsController {
 
     private final UserRepository userRepository;
-    private final CorporateAnalyticsService corporateService;
+    private final CorporateOperationsService corporateService;
 
     private User getCurrentCorporateUser(Principal principal) {
         if (principal == null)

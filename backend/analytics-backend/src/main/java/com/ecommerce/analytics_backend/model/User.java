@@ -26,6 +26,7 @@ public class User implements UserDetails {
 
     private String email;
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     @Column(name = "password_hash")
     private String passwordHash;
 
@@ -36,6 +37,9 @@ public class User implements UserDetails {
     private Boolean isActive;
 
     private String gender;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private CustomerProfile profile;
 
     // --- UserDetails Methods for Spring Security ---
 
@@ -49,13 +53,12 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // We add "ROLE_" prefix because Spring Security usually expects it for RBAC
         return List.of(new SimpleGrantedAuthority("ROLE_" + roleType.toUpperCase()));
     }
 
     @Override
     public String getPassword() {
-        return passwordHash; // Tell Spring Security where to find the password
+        return passwordHash;
     }
 
     @Override
@@ -85,6 +88,14 @@ public class User implements UserDetails {
 
     public String getId() {
         return id;
+    }
+
+    public String getRoleType() {
+        return roleType;
+    }
+
+    public void setRoleType(String roleType) {
+        this.roleType = roleType;
     }
 
     public void setIsActive(Boolean isActive) {
