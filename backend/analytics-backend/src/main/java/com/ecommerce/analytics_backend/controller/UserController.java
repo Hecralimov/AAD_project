@@ -1,5 +1,6 @@
 package com.ecommerce.analytics_backend.controller;
 
+import com.ecommerce.analytics_backend.dto.UserResponseDTO;
 import com.ecommerce.analytics_backend.model.User;
 import com.ecommerce.analytics_backend.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -15,8 +17,11 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers()
+                .stream()
+                .map(u -> new UserResponseDTO(u.getId(), u.getEmail(), u.getRoleType()))
+                .collect(Collectors.toList()));
     }
 
     @GetMapping("/{id}")
@@ -43,7 +48,8 @@ public class UserController {
     }
 
     @PutMapping("/{id}/suspend")
-    public ResponseEntity<User> suspendUser(@PathVariable String id, @RequestBody java.util.Map<String, Boolean> payload) {
+    public ResponseEntity<User> suspendUser(@PathVariable String id,
+            @RequestBody java.util.Map<String, Boolean> payload) {
         Boolean suspended = payload.get("suspended");
         if (suspended == null) {
             suspended = true;
