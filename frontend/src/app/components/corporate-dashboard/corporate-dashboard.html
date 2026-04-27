@@ -60,6 +60,37 @@
 
     <!-- Dashboard Tab -->
     @if (currentTab === 'dashboard') {
+    <section class="date-range-panel">
+      <div>
+        <h2>Analytics Range</h2>
+        <p>Filter revenue and order KPIs by date.</p>
+      </div>
+      <div class="date-controls">
+        <button class="range-chip" type="button" (click)="setQuickRange('7d'); applyDateRange()">7 Days</button>
+        <button class="range-chip" type="button" (click)="setQuickRange('30d'); applyDateRange()">30 Days</button>
+        <button class="range-chip" type="button" (click)="setQuickRange('90d'); applyDateRange()">90 Days</button>
+        <label>
+          From
+          <input type="date" [(ngModel)]="startDate">
+        </label>
+        <label>
+          To
+          <input type="date" [(ngModel)]="endDate">
+        </label>
+        <button class="btn-primary" type="button" (click)="applyDateRange()" [disabled]="analyticsLoading">
+          <span class="material-icons">filter_alt</span>
+          {{ analyticsLoading ? 'Applying...' : 'Apply' }}
+        </button>
+        <button class="btn-secondary" type="button" (click)="clearDateRange()" [disabled]="analyticsLoading">
+          Clear
+        </button>
+      </div>
+    </section>
+
+    @if (analyticsError) {
+    <div class="alert alert-error">{{ analyticsError }}</div>
+    }
+
     <div class="kpi-grid">
       @for (kpi of kpis; track kpi.title) {
       <div class="kpi-card">

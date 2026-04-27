@@ -119,7 +119,7 @@
 
 | #   | Task                                                                                                             | Priority | Est. |
 | --- | ---------------------------------------------------------------------------------------------------------------- | -------- | ---- |
-| B15 | **Admin: Category Management Page** — Table of categories with add/edit/delete.                                  | 🟡 Med   | 2h   |
+| B15 | ✅**Admin: Category Management Page** — Table of categories with add/edit/delete.                                | 🟡 Med   | 2h   |
 | B16 | **Admin: Cross-Store Comparison Chart** — Bar chart comparing stores by revenue and orders.                      | 🟡 Med   | 2h   |
 | B17 | **Corporate: Date Range Picker** — Add date range selector to corporate dashboard, re-fetch data on change.      | 🟡 Med   | 1.5h |
 | B18 | **Profile Management Page** — `/profile` route: view/edit email, change password.                                | 🟡 Med   | 2h   |

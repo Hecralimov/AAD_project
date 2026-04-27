@@ -2,6 +2,29 @@
 
 ## April 27, 2026
 
+### B17 - Corporate Date Range Picker (frontend-only)
+
+- Added corporate dashboard date range controls on the dashboard tab.
+- Added quick range buttons for 7, 30, and 90 days.
+- Added custom `From` / `To` date inputs with apply and clear actions.
+- Updated corporate analytics fetching to send `startDate` and `endDate` query parameters.
+- Added date validation, loading state, and inline error feedback for analytics refresh.
+- Added responsive styling for the date range panel.
+- No backend changes were made. The frontend sends `startDate` / `endDate`; if runtime expects different names, backend or API contract should align with those params or document the required names.
+- Per instruction, did not run frontend/backend/database servers and did not run final tests/builds.
+
+### B16 - Admin Cross-Store Comparison Chart (frontend-only)
+
+- Added `StoreComparison` frontend model for store revenue, order count, and average rating.
+- Added `AnalyticsService.getStoreComparison()` wired to the existing `GET /api/admin/analytics/store-comparison` endpoint.
+- Added a Compare tab to the admin dashboard sidebar.
+- Added grouped bar chart comparing store revenue and order volume with separate chart axes.
+- Added summary cards for store count, top revenue store, and best rating.
+- Added store ranking table with revenue, orders, and average rating for quick scanning.
+- Added comparison-specific responsive styles and loading/empty/error states.
+- No backend changes were made. The endpoint was observed in the existing backend; if it fails in runtime, the needed backend contract is `GET /api/admin/analytics/store-comparison` returning `storeId`, `storeName`, `totalRevenue`, `totalOrders`, and `averageRating`.
+- Per instruction, did not run frontend/backend/database servers and did not run final tests/builds.
+
 ### B15 - Admin Category Management Page (frontend-only)
 
 - Added a Categories tab to the admin dashboard sidebar and header state.

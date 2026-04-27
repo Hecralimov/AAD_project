@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartOptions } from 'chart.js';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { CorporateProductService, CorporateProduct } from '../../services/corporate-product.service';
 import { CategoryService, Category } from '../../services/category.service';
 import { CorporateOrderService, CorporateOrder } from '../../services/corporate-order.service';
@@ -24,6 +24,10 @@ interface CorporateAnalytics {
 export class CorporateDashboard implements OnInit {
   currentTab = 'dashboard';
   kpis: any[] = [];
+  analyticsLoading = false;
+  analyticsError = '';
+  startDate = '';
+  endDate = '';
 
   // Products tab
   products: CorporateProduct[] = [];
@@ -89,6 +93,7 @@ export class CorporateDashboard implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.setQuickRange('30d');
     this.fetchAnalytics();
     this.loadCategories();
   }
@@ -103,7 +108,18 @@ export class CorporateDashboard implements OnInit {
   }
 
   fetchAnalytics() {
-    this.http.get<CorporateAnalytics>('http://localhost:8080/api/corporate/analytics').subscribe({
+    this.analyticsLoading = true;
+    this.analyticsError = '';
+
+    let params = new HttpParams();
+    if (this.startDate) {
+      params = params.set('startDate', this.startDate);
+    }
+    if (this.endDate) {
+      params = params.set('endDate', this.endDate);
+    }
+
+    this.http.get<CorporateAnalytics>('http://localhost:8080/api/corporate/analytics', { params }).subscribe({
       next: (data) => {
         this.kpis = [
           { title: 'Store Revenue', value: '$' + (data.totalRevenue || 0).toLocaleString(), icon: 'storefront' },
@@ -111,10 +127,43 @@ export class CorporateDashboard implements OnInit {
           { title: 'Customer Rating', value: '4.8/5.0', icon: 'star' },
           { title: 'Low Stock Alerts', value: (data.lowStockCount || 0) + ' Items', icon: 'warning' }
         ];
+        this.analyticsLoading = false;
         this.cdr.detectChanges();
       },
-      error: (err) => console.error('Failed to fetch corporate analytics', err)
+      error: (err) => {
+        console.error('Failed to fetch corporate analytics', err);
+        this.analyticsError = 'Could not refresh analytics for this date range.';
+        this.analyticsLoading = false;
+      }
     });
+  }
+
+  applyDateRange() {
+    if (this.startDate && this.endDate && this.startDate > this.endDate) {
+      this.analyticsError = 'Start date must be before end date.';
+      return;
+    }
+
+    this.fetchAnalytics();
+  }
+
+  clearDateRange() {
+    this.startDate = '';
+    this.endDate = '';
+    this.fetchAnalytics();
+  }
+
+  setQuickRange(range: '7d' | '30d' | '90d') {
+    const end = new Date();
+    const start = new Date();
+    const days = range === '7d' ? 7 : range === '30d' ? 30 : 90;
+    start.setDate(end.getDate() - days);
+    this.startDate = this.formatDateInput(start);
+    this.endDate = this.formatDateInput(end);
+  }
+
+  private formatDateInput(date: Date): string {
+    return date.toISOString().slice(0, 10);
   }
 
   // --- Categories ---

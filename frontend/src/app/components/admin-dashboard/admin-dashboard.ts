@@ -7,7 +7,7 @@ import { AnalyticsService } from '../../services/analytics.service';
 import { UserService } from '../../services/user.service';
 import { StoreService } from '../../services/store.service';
 import { CategoryService, Category } from '../../services/category.service';
-import { DashboardAnalytics } from '../../models/analytics';
+import { DashboardAnalytics, StoreComparison } from '../../models/analytics';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -33,6 +33,10 @@ export class AdminDashboard implements OnInit {
   editingCategoryId: string | null = null;
   deletingCategory: Category | null = null;
 
+  storeComparison: StoreComparison[] = [];
+  comparisonLoading = false;
+  comparisonError = '';
+
   // Chart'ları manuel güncellemek için referans alıyoruz
   @ViewChild(BaseChartDirective) chart: BaseChartDirective | undefined;
 
@@ -56,7 +60,77 @@ export class AdminDashboard implements OnInit {
       this.loadStores();
     } else if (tab === 'categories') {
       this.loadCategories();
+    } else if (tab === 'comparison') {
+      this.loadStoreComparison();
     }
+  }
+
+  getHeaderTitle(): string {
+    if (this.currentTab === 'dashboard') return 'Overview Dashboard';
+    if (this.currentTab === 'users') return 'User Management';
+    if (this.currentTab === 'stores') return 'Store Management';
+    if (this.currentTab === 'categories') return 'Category Management';
+    if (this.currentTab === 'comparison') return 'Store Comparison';
+    return 'Overview Dashboard';
+  }
+
+  getHeaderSubtitle(): string {
+    if (this.currentTab === 'dashboard') return "Welcome back, here's what's happening today.";
+    if (this.currentTab === 'users') return 'Manage system users and access levels.';
+    if (this.currentTab === 'stores') return 'Manage marketplace stores and operations.';
+    if (this.currentTab === 'categories') return 'Manage product categories shown across the shop.';
+    if (this.currentTab === 'comparison') return 'Compare store revenue, order volume, and average rating.';
+    return '';
+  }
+
+  loadStoreComparison() {
+    this.comparisonLoading = true;
+    this.comparisonError = '';
+    this.analyticsService.getStoreComparison().subscribe({
+      next: (comparison) => {
+        this.storeComparison = comparison;
+        this.updateStoreComparisonChart(comparison);
+        this.comparisonLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to fetch store comparison', err);
+        this.comparisonError = 'Could not load store comparison data.';
+        this.comparisonLoading = false;
+      }
+    });
+  }
+
+  updateStoreComparisonChart(comparison: StoreComparison[]) {
+    this.storeComparisonChartData = {
+      labels: comparison.map(store => store.storeName || store.storeId.substring(0, 8)),
+      datasets: [
+        {
+          data: comparison.map(store => store.totalRevenue || 0),
+          label: 'Revenue ($)',
+          backgroundColor: '#4f46e5',
+          borderRadius: 6,
+          yAxisID: 'revenue'
+        },
+        {
+          data: comparison.map(store => store.totalOrders || 0),
+          label: 'Orders',
+          backgroundColor: '#0ea5e9',
+          borderRadius: 6,
+          yAxisID: 'orders'
+        }
+      ]
+    };
+  }
+
+  getTopStore(): StoreComparison | null {
+    if (this.storeComparison.length === 0) return null;
+    return [...this.storeComparison].sort((a, b) => (b.totalRevenue || 0) - (a.totalRevenue || 0))[0];
+  }
+
+  getBestRating(): number {
+    if (this.storeComparison.length === 0) return 0;
+    return Math.max(...this.storeComparison.map(store => store.averageRating || 0));
   }
 
   loadCategories() {
@@ -281,6 +355,43 @@ export class AdminDashboard implements OnInit {
     plugins: { legend: { display: false } },
     scales: {
       y: { beginAtZero: true, grid: { color: '#e5e7eb' } },
+      x: { grid: { display: false } }
+    }
+  };
+
+  public storeComparisonChartData: ChartConfiguration<'bar'>['data'] = {
+    labels: [],
+    datasets: []
+  };
+
+  public storeComparisonChartOptions: ChartOptions<'bar'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        labels: { usePointStyle: true }
+      }
+    },
+    scales: {
+      revenue: {
+        type: 'linear',
+        position: 'left',
+        beginAtZero: true,
+        grid: { color: '#e5e7eb' },
+        ticks: {
+          callback: (value) => '$' + Number(value).toLocaleString()
+        }
+      },
+      orders: {
+        type: 'linear',
+        position: 'right',
+        beginAtZero: true,
+        grid: { drawOnChartArea: false },
+        ticks: {
+          precision: 0
+        }
+      },
       x: { grid: { display: false } }
     }
   };

@@ -31,6 +31,10 @@
         <span class="material-icons">category</span>
         Categories
       </a>
+      <a href="javascript:void(0)" class="nav-item" [class.active]="currentTab === 'comparison'" (click)="setTab('comparison')">
+        <span class="material-icons">bar_chart</span>
+        Compare
+      </a>
       <a href="javascript:void(0)" class="nav-item">
         <span class="material-icons">smart_toy</span>
         AI Assistant
@@ -50,16 +54,8 @@
   <main class="main-content">
     <header class="header">
       <div class="header-title">
-        <h1>
-          {{ currentTab === 'dashboard' ? 'Overview Dashboard' : 
-             currentTab === 'users' ? 'User Management' :
-             currentTab === 'stores' ? 'Store Management' : 'Category Management' }}
-        </h1>
-        <p>
-          {{ currentTab === 'dashboard' ? "Welcome back, here's what's happening today." : 
-             currentTab === 'users' ? "Manage system users and access levels." :
-             currentTab === 'stores' ? "Manage marketplace stores and operations." : "Manage product categories shown across the shop." }}
-        </p>
+        <h1>{{ getHeaderTitle() }}</h1>
+        <p>{{ getHeaderSubtitle() }}</p>
       </div>
       <div class="header-actions">
         <div class="search-bar">
@@ -292,6 +288,110 @@
             </tbody>
           </table>
           }
+        </div>
+      </div>
+    </section>
+    } @else if (currentTab === 'comparison') {
+    <section class="users-section">
+      <div class="comparison-summary">
+        <div class="summary-card">
+          <span class="material-icons">storefront</span>
+          <div>
+            <p>Stores Compared</p>
+            <strong>{{ storeComparison.length }}</strong>
+          </div>
+        </div>
+        <div class="summary-card">
+          <span class="material-icons">payments</span>
+          <div>
+            <p>Top Revenue Store</p>
+            <strong>{{ getTopStore()?.storeName || 'N/A' }}</strong>
+          </div>
+        </div>
+        <div class="summary-card">
+          <span class="material-icons">star</span>
+          <div>
+            <p>Best Rating</p>
+            <strong>{{ getBestRating() | number:'1.1-1' }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-card comparison-chart-card">
+        <div class="chart-header">
+          <h2>Revenue and Orders by Store</h2>
+          <button class="btn-secondary" (click)="loadStoreComparison()">
+            <span class="material-icons">refresh</span> Refresh
+          </button>
+        </div>
+        @if (comparisonError) {
+        <div class="alert alert-error">{{ comparisonError }}</div>
+        }
+        @if (comparisonLoading) {
+        <div class="loading-state">
+          <span class="material-icons spin">sync</span>
+          <p>Loading store comparison...</p>
+        </div>
+        } @else if (storeComparison.length === 0) {
+        <div class="empty-state">
+          <span class="material-icons">bar_chart</span>
+          <p>No store comparison data found.</p>
+        </div>
+        } @else {
+        <div class="chart-container comparison-chart">
+          <canvas baseChart
+                  [data]="storeComparisonChartData"
+                  [options]="storeComparisonChartOptions"
+                  [type]="'bar'">
+          </canvas>
+        </div>
+        }
+      </div>
+
+      <div class="users-card comparison-table">
+        <div class="card-header">
+          <h2>Store Ranking</h2>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Store</th>
+                <th>Revenue</th>
+                <th>Orders</th>
+                <th>Avg Rating</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (store of storeComparison; track store.storeId) {
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <div class="category-avatar">
+                      <span class="material-icons">storefront</span>
+                    </div>
+                    <div class="user-details">
+                      <span class="user-email">{{ store.storeName }}</span>
+                      <span class="muted-text">{{ store.storeId.substring(0, 8) }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="metric-strong">${{ store.totalRevenue | number:'1.0-0' }}</td>
+                <td>{{ store.totalOrders }}</td>
+                <td>
+                  <span class="rating-pill">
+                    <span class="material-icons">star</span>
+                    {{ store.averageRating | number:'1.1-1' }}
+                  </span>
+                </td>
+              </tr>
+              } @empty {
+              <tr>
+                <td colspan="4" class="empty-state">No store comparison data found.</td>
+              </tr>
+              }
+            </tbody>
+          </table>
         </div>
       </div>
     </section>

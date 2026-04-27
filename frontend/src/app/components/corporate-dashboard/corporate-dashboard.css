@@ -4,6 +4,77 @@
     height: calc(100vh - 65px);
 }
 
+.date-range-panel {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-end;
+    background: #fff;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,.05), 0 2px 4px -1px rgba(0,0,0,.03);
+}
+
+.date-range-panel h2 {
+    margin: 0 0 0.2rem;
+    color: #111827;
+    font-size: 1.05rem;
+}
+
+.date-range-panel p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.88rem;
+}
+
+.date-controls {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.date-controls label {
+    display: grid;
+    gap: 0.3rem;
+    color: #6b7280;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.date-controls input {
+    min-height: 38px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 0.45rem 0.65rem;
+    color: #111827;
+    font-family: 'Inter', sans-serif;
+}
+
+.date-controls input:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99,102,241,.12);
+    outline: none;
+}
+
+.range-chip {
+    min-height: 38px;
+    padding: 0.45rem 0.8rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    background: #fff;
+    color: #374151;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.range-chip:hover {
+    border-color: #6366f1;
+    color: #4f46e5;
+}
+
 /* ── Card header with action button ── */
 .card-header {
     display: flex;
@@ -513,6 +584,16 @@
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
+    .date-range-panel {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .date-controls {
+        justify-content: flex-start;
+        width: 100%;
+    }
+
     .form-row {
         grid-template-columns: 1fr;
     }
