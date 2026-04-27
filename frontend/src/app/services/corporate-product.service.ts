@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 export interface CorporateProduct {
@@ -16,9 +16,9 @@ export interface CorporateProduct {
   providedIn: 'root'
 })
 export class CorporateProductService {
-  private apiUrl = 'http://localhost:8080/api/corporate/products';
+  private apiUrl = 'http://localhost:8080/api/corporate/operations/products';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getProducts(): Observable<CorporateProduct[]> {
     return this.http.get<CorporateProduct[]>(this.apiUrl);
