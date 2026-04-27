@@ -117,14 +117,14 @@
 
 #### Developer B — Frontend (Day 5-6)
 
-| #   | Task                                                                                                             | Priority | Est. |
-| --- | ---------------------------------------------------------------------------------------------------------------- | -------- | ---- |
-| B15 | ✅**Admin: Category Management Page** — Table of categories with add/edit/delete.                                | 🟡 Med   | 2h   |
-| B16 | ✅**Admin: Cross-Store Comparison Chart** — Bar chart comparing stores by revenue and orders.                    | 🟡 Med   | 2h   |
-| B17 | ✅**Corporate: Date Range Picker** — Add date range selector to corporate dashboard, re-fetch data on change.    | 🟡 Med   | 1.5h |
-| B18 | **Profile Management Page** — `/profile` route: view/edit email, change password.                                | 🟡 Med   | 2h   |
-| B19 | **UI Polish** — Smooth transitions, loading spinners on API calls, empty states ("No orders yet"), error toasts. | 🔴 High  | 3h   |
-| B20 | **Fix & Test all pages** — Cross-browser test, fix layout bugs, verify all flows end-to-end.                     | 🔴 High  | 2h   |
+| #   | Task                                                                                                               | Priority | Est. |
+| --- | ------------------------------------------------------------------------------------------------------------------ | -------- | ---- |
+| B15 | ✅**Admin: Category Management Page** — Table of categories with add/edit/delete.                                  | 🟡 Med   | 2h   |
+| B16 | ✅**Admin: Cross-Store Comparison Chart** — Bar chart comparing stores by revenue and orders.                      | 🟡 Med   | 2h   |
+| B17 | ✅**Corporate: Date Range Picker** — Add date range selector to corporate dashboard, re-fetch data on change.      | 🟡 Med   | 1.5h |
+| B18 | ✅**Profile Management Page** — `/profile` route: view/edit email, change password.                                | 🟡 Med   | 2h   |
+| B19 | ✅**UI Polish** — Smooth transitions, loading spinners on API calls, empty states ("No orders yet"), error toasts. | 🔴 High  | 3h   |
+| B20 | **Fix & Test all pages** — Cross-browser test, fix layout bugs, verify all flows end-to-end.                       | 🔴 High  | 2h   |
 
 ---
 
