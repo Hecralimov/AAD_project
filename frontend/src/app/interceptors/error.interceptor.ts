@@ -2,27 +2,29 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
 import { AuthService } from '../services/auth';
+import { ToastService } from '../services/toast.service';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
-    const authService = inject(AuthService);
+  const authService = inject(AuthService);
+  const toastService = inject(ToastService);
 
-    return next(req).pipe(
-        catchError((error: HttpErrorResponse) => {
-            if (error.status === 401) {
-                console.error('Oturum süresi doldu veya yetkisiz erişim.');
-                alert('Oturumunuzun süresi doldu. Lütfen tekrar giriş yapın.');
-                authService.logout();
-            } else if (error.status === 403) {
-                console.error('Yetkisiz işlem.');
-                alert('Bu işlemi gerçekleştirmek için yetkiniz bulunmuyor.');
-            } else if (error.status >= 500) {
-                console.error('Sunucu hatası:', error.message);
-                alert('Sunucu tarafında beklenmeyen bir hata oluştu. Lütfen daha sonra tekrar deneyin.');
-            } else {
-                console.error('İşlem başarısız:', error.message);
-            }
+  return next(req).pipe(
+    catchError((error: HttpErrorResponse) => {
+      if (error.status === 401) {
+        console.error('Session expired or unauthorized access.');
+        toastService.error('Your session expired. Please sign in again.');
+        authService.logout();
+      } else if (error.status === 403) {
+        console.error('Unauthorized operation.');
+        toastService.error('You do not have permission to perform this action.');
+      } else if (error.status >= 500) {
+        console.error('Server error:', error.message);
+        toastService.error('A server error occurred. Please try again later.');
+      } else {
+        console.error('Request failed:', error.message);
+      }
 
-            return throwError(() => error);
-        })
-    );
+      return throwError(() => error);
+    })
+  );
 };

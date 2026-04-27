@@ -43,6 +43,19 @@
     </header>
 
     @if (currentTab === 'dashboard') {
+    @if (loadingAnalytics) {
+    <div class="dashboard-state">
+      <span class="spinner"></span>
+      <p>Loading shopping analytics...</p>
+    </div>
+    } @else if (analyticsError) {
+    <div class="dashboard-state error">
+      <span class="material-icons">error_outline</span>
+      <h2>Analytics unavailable</h2>
+      <p>{{ analyticsError }}</p>
+      <button type="button" (click)="fetchAnalytics()">Retry</button>
+    </div>
+    } @else {
     <!-- KPI Grid -->
     <div class="kpi-grid">
       @for (kpi of kpis; track kpi.title) {
@@ -81,13 +94,24 @@
         </div>
       </div>
     </div>
+    }
     } @else if (currentTab === 'orders') {
     <!-- Orders Table -->
     <section class="users-section">
       <div class="users-card">
         <div class="card-header">
           <h2>All Orders</h2>
+          @if (loadingOrders) {
+            <span class="inline-loading"><span class="spinner small"></span> Loading</span>
+          }
         </div>
+        @if (ordersError) {
+          <div class="inline-error">
+            <span class="material-icons">error_outline</span>
+            {{ ordersError }}
+            <button type="button" (click)="loadOrders()">Retry</button>
+          </div>
+        }
         <div class="table-responsive">
           <table class="data-table">
             <thead>
@@ -112,7 +136,11 @@
                 </td>
                 <td>
                   <button class="btn-icon-small" (click)="trackOrder(order.id)" title="Track Shipment">
-                    <span class="material-icons">{{ trackingOrderId === order.id ? 'expand_less' : 'local_shipping' }}</span>
+                    @if (loadingTrackingOrderId === order.id) {
+                      <span class="spinner tiny"></span>
+                    } @else {
+                      <span class="material-icons">{{ trackingOrderId === order.id ? 'expand_less' : 'local_shipping' }}</span>
+                    }
                   </button>
                 </td>
               </tr>
@@ -147,7 +175,13 @@
               }
               } @empty {
               <tr>
-                <td colspan="5" class="text-center" style="padding: 2rem; color: #94a3b8;">No orders found. Start shopping!</td>
+                <td colspan="5">
+                  <div class="table-empty">
+                    <span class="material-icons">receipt_long</span>
+                    <strong>No orders yet</strong>
+                    <p>Your purchase history will appear here after checkout.</p>
+                  </div>
+                </td>
               </tr>
               }
             </tbody>

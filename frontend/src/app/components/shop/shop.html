@@ -21,6 +21,9 @@
 
       <div class="filter-group">
         <h3>Categories</h3>
+        @if (categoriesError) {
+          <div class="filter-error">{{ categoriesError }}</div>
+        }
         <ul class="filter-list">
           <li [class.active]="selectedCategoryId === ''" (click)="onCategorySelect('')">All Products</li>
           @for (category of categories; track category.id) {
@@ -36,7 +39,11 @@
     <main class="shop-main">
       <div class="shop-toolbar">
         <div class="results-count">
-          Showing <span>{{ products.length }}</span> of {{ totalElements }} products
+          @if (isLoading) {
+            Loading products...
+          } @else {
+            Showing <span>{{ products.length }}</span> of {{ totalElements }} products
+          }
         </div>
         <div class="sort-dropdown">
           <select [ngModel]="sortOption" (change)="onSortChange($event)">
@@ -51,10 +58,29 @@
       <!-- Loading State -->
       <div class="loader-container" *ngIf="isLoading">
         <div class="spinner"></div>
+        <p>Finding products...</p>
       </div>
 
+      @if (!isLoading && errorMessage) {
+        <div class="empty-state error-state">
+          <span class="material-icons">error_outline</span>
+          <h2>Unable to load products</h2>
+          <p>{{ errorMessage }}</p>
+          <button type="button" (click)="loadProducts()">Retry</button>
+        </div>
+      }
+
+      @if (!isLoading && !errorMessage && products.length === 0) {
+        <div class="empty-state">
+          <span class="material-icons">inventory_2</span>
+          <h2>No products found</h2>
+          <p>Try a different search term or category filter.</p>
+          <button type="button" (click)="selectedCategoryId = ''; searchQuery = ''; sortOption = ''; onSearch()">Clear filters</button>
+        </div>
+      }
+
       <!-- Product Grid -->
-      <div class="product-grid" *ngIf="!isLoading">
+      <div class="product-grid" *ngIf="!isLoading && !errorMessage && products.length > 0">
         @for (product of products; track product.id) {
         <div class="product-card" [routerLink]="['/products', product.id]">
           <div class="product-image">

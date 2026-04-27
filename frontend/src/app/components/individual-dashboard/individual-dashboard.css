@@ -20,6 +20,11 @@
     border-radius: 16px;
     box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
     padding: 1.5rem;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.users-card:hover {
+    box-shadow: 0 10px 20px -12px rgba(15,23,42,0.25);
 }
 
 .card-header {
@@ -96,6 +101,11 @@
     padding: 4px;
     border-radius: 6px;
     transition: all 0.2s;
+    min-width: 32px;
+    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-icon-small:hover {
@@ -143,6 +153,122 @@
 
 .text-center {
     text-align: center;
+}
+
+.dashboard-state {
+    min-height: 360px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    border: 1px dashed #d1d5db;
+    border-radius: 16px;
+    background: #ffffff;
+    color: #6b7280;
+    text-align: center;
+}
+
+.dashboard-state h2 {
+    margin: 0;
+    color: #111827;
+    font-size: 1.25rem;
+}
+
+.dashboard-state p {
+    margin: 0;
+}
+
+.dashboard-state .material-icons {
+    color: #dc2626;
+    font-size: 2.6rem;
+}
+
+.dashboard-state button,
+.inline-error button {
+    border: 0;
+    border-radius: 8px;
+    background: #4f46e5;
+    color: #ffffff;
+    padding: 0.55rem 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.spinner {
+    width: 28px;
+    height: 28px;
+    border: 3px solid #e0e7ff;
+    border-top-color: #6366f1;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+
+.spinner.small {
+    width: 16px;
+    height: 16px;
+    border-width: 2px;
+}
+
+.spinner.tiny {
+    width: 18px;
+    height: 18px;
+    border-width: 2px;
+}
+
+.inline-loading {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: #6b7280;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.inline-error {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    background: #fef2f2;
+    color: #b91c1c;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.inline-error .material-icons {
+    font-size: 20px;
+}
+
+.table-empty {
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    color: #94a3b8;
+    text-align: center;
+}
+
+.table-empty .material-icons {
+    font-size: 2.6rem;
+    color: #cbd5e1;
+}
+
+.table-empty strong {
+    color: #374151;
+}
+
+.table-empty p {
+    margin: 0;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
 /* Responsive */

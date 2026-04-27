@@ -1,0 +1,165 @@
+<main class="profile-page">
+  <section class="profile-shell">
+    <div class="profile-header">
+      <div>
+        <p class="eyebrow">Account settings</p>
+        <h1>Profile</h1>
+        <p>Manage your sign-in email and password.</p>
+      </div>
+      <a [routerLink]="dashboardPath()" class="btn-secondary">
+        <span class="material-icons">dashboard</span>
+        Dashboard
+      </a>
+    </div>
+
+    @if (isLoading) {
+      <div class="state-card">
+        <span class="spinner"></span>
+        <p>Loading profile...</p>
+      </div>
+    } @else {
+      <div class="profile-grid">
+        <section class="account-card summary-card">
+          <div class="avatar">
+            <span class="material-icons">account_circle</span>
+          </div>
+          <div>
+            <h2>{{ email || 'Signed-in user' }}</h2>
+            <span class="role-pill">{{ roleLabel() }}</span>
+          </div>
+        </section>
+
+        <section class="account-card">
+          <div class="section-title">
+            <span class="material-icons">alternate_email</span>
+            <div>
+              <h2>Email</h2>
+              <p>Update the email address used for login and account messages.</p>
+            </div>
+          </div>
+
+          @if (profileError) {
+            <div class="alert error">
+              <span class="material-icons">error_outline</span>
+              {{ profileError }}
+            </div>
+          }
+
+          @if (profileSuccess) {
+            <div class="alert success">
+              <span class="material-icons">check_circle</span>
+              {{ profileSuccess }}
+            </div>
+          }
+
+          <form (ngSubmit)="saveProfile()" class="settings-form">
+            <label for="email">Email address</label>
+            <div class="input-wrapper">
+              <span class="material-icons">mail</span>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                [(ngModel)]="email"
+                autocomplete="email"
+                maxlength="50"
+                placeholder="you@example.com">
+            </div>
+
+            <button type="submit" class="btn-primary" [disabled]="isSavingProfile">
+              @if (isSavingProfile) {
+                <span class="spinner small"></span>
+              } @else {
+                <span class="material-icons">save</span>
+              }
+              Save email
+            </button>
+          </form>
+        </section>
+
+        <section class="account-card">
+          <div class="section-title">
+            <span class="material-icons">lock_reset</span>
+            <div>
+              <h2>Password</h2>
+              <p>Change your password using your current credentials.</p>
+            </div>
+          </div>
+
+          @if (passwordError) {
+            <div class="alert error">
+              <span class="material-icons">error_outline</span>
+              {{ passwordError }}
+            </div>
+          }
+
+          @if (passwordSuccess) {
+            <div class="alert success">
+              <span class="material-icons">check_circle</span>
+              {{ passwordSuccess }}
+            </div>
+          }
+
+          <form (ngSubmit)="changePassword()" class="settings-form">
+            <label for="currentPassword">Current password</label>
+            <div class="input-wrapper">
+              <span class="material-icons">lock</span>
+              <input
+                id="currentPassword"
+                name="currentPassword"
+                [type]="showCurrentPassword ? 'text' : 'password'"
+                [(ngModel)]="currentPassword"
+                autocomplete="current-password"
+                maxlength="32"
+                placeholder="Current password">
+              <button type="button" class="visibility-btn" (click)="showCurrentPassword = !showCurrentPassword">
+                <span class="material-icons">{{ showCurrentPassword ? 'visibility_off' : 'visibility' }}</span>
+              </button>
+            </div>
+
+            <label for="newPassword">New password</label>
+            <div class="input-wrapper">
+              <span class="material-icons">key</span>
+              <input
+                id="newPassword"
+                name="newPassword"
+                [type]="showNewPassword ? 'text' : 'password'"
+                [(ngModel)]="newPassword"
+                autocomplete="new-password"
+                maxlength="32"
+                placeholder="At least 8 characters">
+              <button type="button" class="visibility-btn" (click)="showNewPassword = !showNewPassword">
+                <span class="material-icons">{{ showNewPassword ? 'visibility_off' : 'visibility' }}</span>
+              </button>
+            </div>
+
+            <label for="confirmPassword">Confirm new password</label>
+            <div class="input-wrapper">
+              <span class="material-icons">verified_user</span>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                [type]="showConfirmPassword ? 'text' : 'password'"
+                [(ngModel)]="confirmPassword"
+                autocomplete="new-password"
+                maxlength="32"
+                placeholder="Repeat new password">
+              <button type="button" class="visibility-btn" (click)="showConfirmPassword = !showConfirmPassword">
+                <span class="material-icons">{{ showConfirmPassword ? 'visibility_off' : 'visibility' }}</span>
+              </button>
+            </div>
+
+            <button type="submit" class="btn-primary" [disabled]="isChangingPassword">
+              @if (isChangingPassword) {
+                <span class="spinner small"></span>
+              } @else {
+                <span class="material-icons">lock_reset</span>
+              }
+              Change password
+            </button>
+          </form>
+        </section>
+      </div>
+    }
+  </section>
+</main>
