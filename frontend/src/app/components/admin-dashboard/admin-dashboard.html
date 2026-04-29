@@ -7,7 +7,7 @@
     </div>
     
     <nav class="nav-menu">
-      <a href="javascript:void(0)" class="nav-item" [class.active]="currentTab === 'dashboard'" (click)="setTab('dashboard')">
+      <a href="javascript:void(0)" class="nav-item" [class.active]="currentTab() === 'dashboard'" (click)="setTab('dashboard')">
         <span class="material-icons">dashboard</span>
         Dashboard
       </a>
@@ -19,19 +19,19 @@
         <span class="material-icons">receipt_long</span>
         Orders
       </a>
-      <a href="javascript:void(0)" class="nav-item" [class.active]="currentTab === 'users'" (click)="setTab('users')">
+      <a href="javascript:void(0)" class="nav-item" [class.active]="currentTab() === 'users'" (click)="setTab('users')">
         <span class="material-icons">people</span>
         Users
       </a>
-      <a href="javascript:void(0)" class="nav-item" [class.active]="currentTab === 'stores'" (click)="setTab('stores')">
+      <a href="javascript:void(0)" class="nav-item" [class.active]="currentTab() === 'stores'" (click)="setTab('stores')">
         <span class="material-icons">storefront</span>
         Stores
       </a>
-      <a href="javascript:void(0)" class="nav-item" [class.active]="currentTab === 'categories'" (click)="setTab('categories')">
+      <a href="javascript:void(0)" class="nav-item" [class.active]="currentTab() === 'categories'" (click)="setTab('categories')">
         <span class="material-icons">category</span>
         Categories
       </a>
-      <a href="javascript:void(0)" class="nav-item" [class.active]="currentTab === 'comparison'" (click)="setTab('comparison')">
+      <a href="javascript:void(0)" class="nav-item" [class.active]="currentTab() === 'comparison'" (click)="setTab('comparison')">
         <span class="material-icons">bar_chart</span>
         Compare
       </a>
@@ -66,7 +66,7 @@
       </div>
     </header>
 
-    @if (currentTab === 'dashboard') {
+    @if (currentTab() === 'dashboard') {
     <!-- KPI Cards -->
     <section class="kpi-grid">
       <div class="kpi-card" *ngFor="let kpi of kpis">
@@ -121,14 +121,45 @@
         </div>
       </div>
     </section>
-    } @else if (currentTab === 'users') {
+    } @else if (currentTab() === 'users') {
     <section class="users-section">
       <div class="users-card">
         <div class="card-header">
-          <h2>All Users</h2>
-          <button class="btn-primary"><span class="material-icons">add</span> Add User</button>
+          <div>
+            <h2>All Users</h2>
+            <p class="card-subtitle">
+              @if (usersTotalElements > 0) {
+                Showing {{ getUsersStart() }}-{{ getUsersEnd() }} of {{ usersTotalElements }}
+              } @else {
+                User accounts and access status
+              }
+            </p>
+          </div>
+          <div class="card-actions">
+            <label class="page-size-control">
+              <span>Rows</span>
+              <select [ngModel]="usersPageSize" (ngModelChange)="changeUsersPageSize($event)" [disabled]="usersLoading">
+                @for (size of usersPageSizeOptions; track size) {
+                  <option [ngValue]="size">{{ size }}</option>
+                }
+              </select>
+            </label>
+            <button class="btn-primary"><span class="material-icons">add</span> Add User</button>
+          </div>
         </div>
+        @if (!usersLoading && usersTotalPages > 1) {
+        <ng-container *ngTemplateOutlet="usersPagination"></ng-container>
+        }
+        @if (usersError) {
+        <div class="alert alert-error">{{ usersError }}</div>
+        }
         <div class="table-responsive">
+          @if (usersLoading) {
+          <div class="loading-state table-loading">
+            <span class="material-icons spin">sync</span>
+            <p>Loading users...</p>
+          </div>
+          } @else {
           <table class="data-table">
             <thead>
               <tr>
@@ -173,16 +204,29 @@
               }
             </tbody>
           </table>
+          }
         </div>
+        @if (!usersLoading && usersTotalPages > 1) {
+        <ng-container *ngTemplateOutlet="usersPagination"></ng-container>
+        }
       </div>
     </section>
-    } @else if (currentTab === 'stores') {
+    } @else if (currentTab() === 'stores') {
     <section class="users-section">
       <div class="users-card">
         <div class="card-header">
           <h2>All Stores</h2>
         </div>
+        @if (storesError) {
+        <div class="alert alert-error">{{ storesError }}</div>
+        }
         <div class="table-responsive">
+          @if (storesLoading) {
+          <div class="loading-state table-loading">
+            <span class="material-icons spin">sync</span>
+            <p>Loading stores...</p>
+          </div>
+          } @else {
           <table class="data-table">
             <thead>
               <tr>
@@ -219,10 +263,11 @@
               }
             </tbody>
           </table>
+          }
         </div>
       </div>
     </section>
-    } @else if (currentTab === 'categories') {
+    } @else if (currentTab() === 'categories') {
     <section class="users-section">
       <div class="users-card">
         <div class="card-header">
@@ -291,7 +336,7 @@
         </div>
       </div>
     </section>
-    } @else if (currentTab === 'comparison') {
+    } @else if (currentTab() === 'comparison') {
     <section class="users-section">
       <div class="comparison-summary">
         <div class="summary-card">
@@ -398,6 +443,28 @@
     }
   </main>
 </div>
+
+<ng-template #usersPagination>
+  <div class="pagination-bar">
+    <button class="btn-secondary pagination-btn" (click)="goToUsersPage(0)" [disabled]="usersPage === 0">
+      <span class="material-icons">first_page</span>
+      First
+    </button>
+    <button class="btn-secondary pagination-btn" (click)="goToUsersPage(usersPage - 1)" [disabled]="usersPage === 0">
+      <span class="material-icons">chevron_left</span>
+      Previous
+    </button>
+    <span class="pagination-summary">Page {{ usersPage + 1 }} of {{ usersTotalPages }}</span>
+    <button class="btn-secondary pagination-btn" (click)="goToUsersPage(usersPage + 1)" [disabled]="usersPage + 1 >= usersTotalPages">
+      Next
+      <span class="material-icons">chevron_right</span>
+    </button>
+    <button class="btn-secondary pagination-btn" (click)="goToUsersPage(usersTotalPages - 1)" [disabled]="usersPage + 1 >= usersTotalPages">
+      Last
+      <span class="material-icons">last_page</span>
+    </button>
+  </div>
+</ng-template>
 
 @if (showCategoryModal) {
 <div class="modal-overlay" (click)="closeCategoryModal()">

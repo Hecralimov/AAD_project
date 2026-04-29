@@ -7,15 +7,15 @@
     </div>
 
     <nav class="nav-menu">
-      <a href="javascript:void(0)" class="nav-item" [class.active]="currentTab === 'dashboard'" (click)="setTab('dashboard')">
+      <a href="javascript:void(0)" class="nav-item" [class.active]="currentTab() === 'dashboard'" (click)="setTab('dashboard')">
         <span class="material-icons">dashboard</span>
         Dashboard
       </a>
-      <a href="javascript:void(0)" class="nav-item" [class.active]="currentTab === 'products'" (click)="setTab('products')">
+      <a href="javascript:void(0)" class="nav-item" [class.active]="currentTab() === 'products'" (click)="setTab('products')">
         <span class="material-icons">inventory_2</span>
         Products
       </a>
-      <a href="javascript:void(0)" class="nav-item" [class.active]="currentTab === 'orders'" (click)="setTab('orders')">
+      <a href="javascript:void(0)" class="nav-item" [class.active]="currentTab() === 'orders'" (click)="setTab('orders')">
         <span class="material-icons">receipt_long</span>
         Orders
       </a>
@@ -39,14 +39,14 @@
     <header class="header">
       <div class="header-title">
         <h1>
-          {{ currentTab === 'dashboard' ? 'Store Performance' :
-             currentTab === 'products' ? 'Product Management' :
-             currentTab === 'orders' ? 'Order Management' : 'Store Performance' }}
+          {{ currentTab() === 'dashboard' ? 'Store Performance' :
+             currentTab() === 'products' ? 'Product Management' :
+             currentTab() === 'orders' ? 'Order Management' : 'Store Performance' }}
         </h1>
         <p>
-          {{ currentTab === 'dashboard' ? 'Manage your business and analyze sales' :
-             currentTab === 'products' ? 'Add, edit, and manage your product catalog' :
-             currentTab === 'orders' ? 'Review incoming orders and update fulfillment status' : 'Manage your business' }}
+          {{ currentTab() === 'dashboard' ? 'Manage your business and analyze sales' :
+             currentTab() === 'products' ? 'Add, edit, and manage your product catalog' :
+             currentTab() === 'orders' ? 'Review incoming orders and update fulfillment status' : 'Manage your business' }}
         </p>
       </div>
       <div class="header-actions">
@@ -59,7 +59,7 @@
     </header>
 
     <!-- Dashboard Tab -->
-    @if (currentTab === 'dashboard') {
+    @if (currentTab() === 'dashboard') {
     <section class="date-range-panel">
       <div>
         <h2>Analytics Range</h2>
@@ -131,7 +131,7 @@
     }
 
     <!-- Products Tab -->
-    @else if (currentTab === 'products') {
+    @else if (currentTab() === 'products') {
     <section class="users-section">
       <div class="users-card">
         <div class="card-header">
@@ -217,7 +217,7 @@
     }
 
     <!-- Orders Tab -->
-    @else if (currentTab === 'orders') {
+    @else if (currentTab() === 'orders') {
     <section class="users-section">
       <div class="users-card">
         <div class="card-header">

@@ -442,6 +442,39 @@
   color: #111827;
 }
 
+.card-subtitle {
+  margin: 0.25rem 0 0;
+  color: #6b7280;
+  font-size: 0.86rem;
+}
+
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.page-size-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #6b7280;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.page-size-control select {
+  height: 38px;
+  min-width: 74px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #111827;
+  font: inherit;
+  padding: 0 0.55rem;
+}
+
 .table-responsive {
   overflow-x: auto;
 }
@@ -600,6 +633,7 @@
 }
 
 .btn-primary:disabled,
+.btn-secondary:disabled,
 .btn-danger:disabled {
   opacity: 0.55;
   cursor: not-allowed;
@@ -645,6 +679,12 @@
   padding: 2.5rem 1rem;
 }
 
+.table-loading {
+  min-height: 260px;
+  display: grid;
+  place-content: center;
+}
+
 .loading-state .material-icons {
   color: #4f46e5;
   margin-bottom: 0.5rem;
@@ -652,6 +692,25 @@
 
 .py-4 {
   padding: 1rem;
+}
+
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-top: 1rem;
+}
+
+.pagination-summary {
+  color: #6b7280;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.pagination-btn {
+  min-width: 98px;
 }
 
 /* Modals */

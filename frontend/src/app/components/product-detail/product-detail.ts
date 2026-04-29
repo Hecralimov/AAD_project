@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CartService } from '../../services/cart.service';
@@ -37,7 +37,8 @@ export class ProductDetailComponent implements OnInit {
     private productService: ProductService,
     private reviewService: ReviewService,
     private cartService: CartService,
-    public authService: AuthService
+    public authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -58,10 +59,12 @@ export class ProductDetailComponent implements OnInit {
       next: (product) => {
         this.product = product;
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.errorMessage = 'We could not load this product.';
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -72,12 +75,14 @@ export class ProductDetailComponent implements OnInit {
       next: (reviews) => {
         this.reviews = reviews;
         this.reviewsLoading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.reviews = [];
         this.reviewsLoading = false;
         this.reviewMessage = 'Reviews could not be loaded right now.';
         this.reviewMessageType = 'error';
+        this.cdr.detectChanges();
       }
     });
   }
@@ -94,6 +99,7 @@ export class ProductDetailComponent implements OnInit {
     this.cartMessage = `${this.quantity} item${this.quantity > 1 ? 's' : ''} added to cart.`;
     setTimeout(() => {
       this.cartMessage = '';
+      this.cdr.detectChanges();
     }, 2500);
   }
 
@@ -133,11 +139,13 @@ export class ProductDetailComponent implements OnInit {
         this.reviewMessage = 'Thanks, your review was submitted.';
         this.reviewMessageType = 'success';
         this.isSubmittingReview = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.reviewMessage = err?.error?.message || 'Only customers who bought this product can review it.';
         this.reviewMessageType = 'error';
         this.isSubmittingReview = false;
+        this.cdr.detectChanges();
       }
     });
   }

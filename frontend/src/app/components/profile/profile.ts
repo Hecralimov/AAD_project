@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth';
@@ -31,7 +31,11 @@ export class ProfileComponent implements OnInit {
   showNewPassword = false;
   showConfirmPassword = false;
 
-  constructor(public authService: AuthService, private profileService: ProfileService) {}
+  constructor(
+    public authService: AuthService,
+    private profileService: ProfileService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
     this.loadProfile();
@@ -47,6 +51,7 @@ export class ProfileComponent implements OnInit {
         this.email = profile.email;
         this.authService.updateStoredEmail(profile.email);
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         const fallbackEmail = this.authService.currentUserEmail() || '';
@@ -59,6 +64,7 @@ export class ProfileComponent implements OnInit {
         this.email = fallbackEmail;
         this.profileError = 'Profile details could not be loaded from the server.';
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -81,10 +87,12 @@ export class ProfileComponent implements OnInit {
         this.authService.updateStoredEmail(profile.email);
         this.profileSuccess = 'Profile updated successfully.';
         this.isSavingProfile = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.profileError = 'Profile update failed. The backend profile endpoint may not be available yet.';
         this.isSavingProfile = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -119,10 +127,12 @@ export class ProfileComponent implements OnInit {
         this.confirmPassword = '';
         this.passwordSuccess = 'Password changed successfully.';
         this.isChangingPassword = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.passwordError = 'Password change failed. Please check your current password or backend support.';
         this.isChangingPassword = false;
+        this.cdr.detectChanges();
       }
     });
   }

@@ -7,11 +7,11 @@
     </div>
 
     <nav class="nav-menu">
-      <a href="javascript:void(0)" class="nav-item" [class.active]="currentTab === 'dashboard'" (click)="setTab('dashboard')">
+      <a href="javascript:void(0)" class="nav-item" [class.active]="currentTab() === 'dashboard'" (click)="setTab('dashboard')">
         <span class="material-icons">dashboard</span>
         Dashboard
       </a>
-      <a href="javascript:void(0)" class="nav-item" [class.active]="currentTab === 'orders'" (click)="setTab('orders')">
+      <a href="javascript:void(0)" class="nav-item" [class.active]="currentTab() === 'orders'" (click)="setTab('orders')">
         <span class="material-icons">receipt_long</span>
         My Orders
       </a>
@@ -37,12 +37,12 @@
   <main class="main-content">
     <header class="header">
       <div class="header-title">
-        <h1>{{ currentTab === 'dashboard' ? 'My Shopping Analytics' : 'Purchase History' }}</h1>
-        <p>{{ currentTab === 'dashboard' ? 'Track your orders, spending, and habits' : 'View all your past orders and shipment tracking' }}</p>
+        <h1>{{ currentTab() === 'dashboard' ? 'My Shopping Analytics' : 'Purchase History' }}</h1>
+        <p>{{ currentTab() === 'dashboard' ? 'Track your orders, spending, and habits' : 'View all your past orders and shipment tracking' }}</p>
       </div>
     </header>
 
-    @if (currentTab === 'dashboard') {
+    @if (currentTab() === 'dashboard') {
     @if (loadingAnalytics) {
     <div class="dashboard-state">
       <span class="spinner"></span>
@@ -95,7 +95,7 @@
       </div>
     </div>
     }
-    } @else if (currentTab === 'orders') {
+    } @else if (currentTab() === 'orders') {
     <!-- Orders Table -->
     <section class="users-section">
       <div class="users-card">

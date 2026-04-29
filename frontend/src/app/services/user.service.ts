@@ -9,6 +9,14 @@ export interface User {
   active: boolean;
 }
 
+export interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -17,8 +25,8 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  getUsers(): Observable<User[]> {
-    return this.http.get<User[]>(this.apiUrl);
+  getUsers(page: number = 0, size: number = 10): Observable<PageResponse<User>> {
+    return this.http.get<PageResponse<User>>(`${this.apiUrl}?page=${page}&size=${size}`);
   }
 
   suspendUser(id: string, suspend: boolean): Observable<User> {

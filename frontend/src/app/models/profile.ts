@@ -3,6 +3,11 @@ export interface Profile {
   email: string;
   roleType: string;
   active?: boolean;
+  fullName?: string;
+  phoneNumber?: string;
+  addressLine?: string;
+  city?: string;
+  country?: string;
 }
 
 export interface UpdateProfileRequest {

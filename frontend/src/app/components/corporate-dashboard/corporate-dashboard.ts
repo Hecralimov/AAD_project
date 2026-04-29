@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BaseChartDirective } from 'ng2-charts';
@@ -22,7 +22,8 @@ interface CorporateAnalytics {
   styleUrl: './corporate-dashboard.css',
 })
 export class CorporateDashboard implements OnInit {
-  currentTab = 'dashboard';
+  currentTab = signal('dashboard');
+  private tabRefresh = signal<{ tab: string; tick: number } | null>(null);
   kpis: any[] = [];
   analyticsLoading = false;
   analyticsError = '';
@@ -94,17 +95,13 @@ export class CorporateDashboard implements OnInit {
 
   ngOnInit() {
     this.setQuickRange('30d');
-    this.fetchAnalytics();
     this.loadCategories();
+    this.refreshTab('dashboard');
   }
 
   setTab(tab: string) {
-    this.currentTab = tab;
-    if (tab === 'products') {
-      this.loadProducts();
-    } else if (tab === 'orders') {
-      this.loadOrders();
-    }
+    this.currentTab.set(tab);
+    this.refreshTab(tab);
   }
 
   fetchAnalytics() {
@@ -134,6 +131,7 @@ export class CorporateDashboard implements OnInit {
         console.error('Failed to fetch corporate analytics', err);
         this.analyticsError = 'Could not refresh analytics for this date range.';
         this.analyticsLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -166,11 +164,32 @@ export class CorporateDashboard implements OnInit {
     return date.toISOString().slice(0, 10);
   }
 
+  private refreshTab(tab: string) {
+    this.tabRefresh.update(current => ({
+      tab,
+      tick: (current?.tick ?? 0) + 1
+    }));
+
+    if (tab === 'dashboard') {
+      this.fetchAnalytics();
+    } else if (tab === 'products') {
+      this.loadProducts();
+    } else if (tab === 'orders') {
+      this.loadOrders();
+    }
+  }
+
   // --- Categories ---
   loadCategories() {
     this.categoryService.getCategories().subscribe({
-      next: (cats) => this.categories = cats,
-      error: (err) => console.error('Failed to load categories', err)
+      next: (cats) => {
+        this.categories = cats;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to load categories', err);
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -238,31 +257,35 @@ export class CorporateDashboard implements OnInit {
     if (this.isEditMode && this.editingProductId) {
       this.corporateProductService.updateProduct(this.editingProductId, this.productForm).subscribe({
         next: () => {
-          this.showProductModal = false;
-          this.productSuccess = 'Product updated.';
-          this.isSavingProduct = false;
-          this.loadProducts();
-        },
-        error: (err) => {
-          console.error('Failed to update product', err);
-          this.productError = 'Could not update product.';
-          this.isSavingProduct = false;
-        }
-      });
+        this.showProductModal = false;
+        this.productSuccess = 'Product updated.';
+        this.isSavingProduct = false;
+        this.loadProducts();
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to update product', err);
+        this.productError = 'Could not update product.';
+        this.isSavingProduct = false;
+        this.cdr.detectChanges();
+      }
+    });
     } else {
       this.corporateProductService.createProduct(this.productForm).subscribe({
         next: () => {
-          this.showProductModal = false;
-          this.productSuccess = 'Product added.';
-          this.isSavingProduct = false;
-          this.loadProducts();
-        },
-        error: (err) => {
-          console.error('Failed to create product', err);
-          this.productError = 'Could not add product.';
-          this.isSavingProduct = false;
-        }
-      });
+        this.showProductModal = false;
+        this.productSuccess = 'Product added.';
+        this.isSavingProduct = false;
+        this.loadProducts();
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to create product', err);
+        this.productError = 'Could not add product.';
+        this.isSavingProduct = false;
+        this.cdr.detectChanges();
+      }
+    });
     }
   }
 
@@ -298,11 +321,13 @@ export class CorporateDashboard implements OnInit {
           this.productSuccess = 'Product deleted.';
           this.isDeletingProduct = false;
           this.loadProducts();
+          this.cdr.detectChanges();
         },
         error: (err) => {
           console.error('Failed to delete product', err);
           this.productError = 'Could not delete product.';
           this.isDeletingProduct = false;
+          this.cdr.detectChanges();
         }
       });
     }
@@ -326,6 +351,7 @@ export class CorporateDashboard implements OnInit {
         console.error('Failed to load corporate orders', err);
         this.orderError = 'Could not load incoming orders.';
         this.ordersLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -352,6 +378,7 @@ export class CorporateDashboard implements OnInit {
         console.error('Failed to update order status', err);
         this.orderError = 'Could not update order status.';
         this.updatingOrderId = null;
+        this.cdr.detectChanges();
       }
     });
   }

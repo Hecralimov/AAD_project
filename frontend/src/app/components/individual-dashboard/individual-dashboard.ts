@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartOptions } from 'chart.js';
@@ -20,7 +20,9 @@ interface IndividualAnalytics {
   styleUrl: './individual-dashboard.css',
 })
 export class IndividualDashboard implements OnInit {
-  currentTab: string = 'dashboard';
+  currentTab = signal('dashboard');
+  private tabRefresh = signal({ tab: 'dashboard', tick: 0 });
+  private trackingRefresh = signal<{ orderId: string; tick: number } | null>(null);
   kpis: any[] = [];
   orders: OrderResponse[] = [];
   selectedTracking: ShipmentResponse | null = null;
@@ -61,14 +63,12 @@ export class IndividualDashboard implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.fetchAnalytics();
+    this.refreshTab('dashboard');
   }
 
   setTab(tab: string) {
-    this.currentTab = tab;
-    if (tab === 'orders') {
-      this.loadOrders();
-    }
+    this.currentTab.set(tab);
+    this.refreshTab(tab);
   }
 
   fetchAnalytics() {
@@ -101,6 +101,7 @@ export class IndividualDashboard implements OnInit {
         console.error('Failed to fetch individual analytics', err);
         this.analyticsError = 'Shopping analytics could not be loaded.';
         this.loadingAnalytics = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -119,17 +120,21 @@ export class IndividualDashboard implements OnInit {
         this.orders = [];
         this.ordersError = 'Orders could not be loaded.';
         this.loadingOrders = false;
+        this.cdr.detectChanges();
       }
     });
   }
 
   trackOrder(orderId: string) {
-    if (this.trackingOrderId === orderId) {
-      this.trackingOrderId = null;
-      this.selectedTracking = null;
-      return;
-    }
     this.trackingOrderId = orderId;
+    this.trackingRefresh.update(current => ({
+      orderId,
+      tick: (current?.tick ?? 0) + 1
+    }));
+    this.fetchTracking(orderId);
+  }
+
+  private fetchTracking(orderId: string) {
     this.loadingTrackingOrderId = orderId;
     this.trackingError = '';
     this.orderService.getOrderTracking(orderId).subscribe({
@@ -144,6 +149,7 @@ export class IndividualDashboard implements OnInit {
         this.loadingTrackingOrderId = null;
         this.trackingError = 'Shipment tracking is not available for this order yet.';
         this.toastService.error(this.trackingError);
+        this.cdr.detectChanges();
       }
     });
   }
@@ -156,6 +162,15 @@ export class IndividualDashboard implements OnInit {
       case 'PROCESSING': return 'badge-processing';
       case 'CANCELLED': return 'badge-cancelled';
       default: return '';
+    }
+  }
+
+  private refreshTab(tab: string) {
+    this.tabRefresh.update(current => ({ tab, tick: current.tick + 1 }));
+    if (tab === 'dashboard') {
+      this.fetchAnalytics();
+    } else if (tab === 'orders') {
+      this.loadOrders();
     }
   }
 }
