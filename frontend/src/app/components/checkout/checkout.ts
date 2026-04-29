@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -32,7 +32,8 @@ export class CheckoutComponent implements OnInit {
   constructor(
     private cartService: CartService,
     private orderService: OrderService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -74,11 +75,13 @@ export class CheckoutComponent implements OnInit {
         this.orderPlaced = true;
         this.orderId = order.id;
         this.cartService.clearCart();
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.isProcessing = false;
         this.errorMessage = err.error?.message || err.error || 'Checkout failed. Please try again.';
         console.error('Checkout error', err);
+        this.cdr.detectChanges();
       }
     });
   }

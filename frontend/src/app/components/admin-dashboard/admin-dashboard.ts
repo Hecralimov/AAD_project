@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BaseChartDirective } from 'ng2-charts';
@@ -17,9 +17,19 @@ import { DashboardAnalytics, StoreComparison } from '../../models/analytics';
   styleUrl: './admin-dashboard.css',
 })
 export class AdminDashboard implements OnInit {
-  currentTab: string = 'dashboard';
+  currentTab = signal('dashboard');
+  private tabRefresh = signal({ tab: 'dashboard', tick: 0 });
   users: any[] = []; // From UserService
+  usersLoading = false;
+  usersError = '';
+  usersPage = 0;
+  usersPageSize = 10;
+  usersTotalPages = 0;
+  usersTotalElements = 0;
+  readonly usersPageSizeOptions = [10, 25, 50];
   stores: any[] = []; // From StoreService
+  storesLoading = false;
+  storesError = '';
   categories: Category[] = [];
   categoriesLoading = false;
   categoryError = '';
@@ -49,37 +59,31 @@ export class AdminDashboard implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.fetchAnalytics();
+    this.refreshTab('dashboard');
   }
 
   setTab(tab: string) {
-    this.currentTab = tab;
-    if (tab === 'users') {
-      this.loadUsers();
-    } else if (tab === 'stores') {
-      this.loadStores();
-    } else if (tab === 'categories') {
-      this.loadCategories();
-    } else if (tab === 'comparison') {
-      this.loadStoreComparison();
-    }
+    this.currentTab.set(tab);
+    this.refreshTab(tab);
   }
 
   getHeaderTitle(): string {
-    if (this.currentTab === 'dashboard') return 'Overview Dashboard';
-    if (this.currentTab === 'users') return 'User Management';
-    if (this.currentTab === 'stores') return 'Store Management';
-    if (this.currentTab === 'categories') return 'Category Management';
-    if (this.currentTab === 'comparison') return 'Store Comparison';
+    const tab = this.currentTab();
+    if (tab === 'dashboard') return 'Overview Dashboard';
+    if (tab === 'users') return 'User Management';
+    if (tab === 'stores') return 'Store Management';
+    if (tab === 'categories') return 'Category Management';
+    if (tab === 'comparison') return 'Store Comparison';
     return 'Overview Dashboard';
   }
 
   getHeaderSubtitle(): string {
-    if (this.currentTab === 'dashboard') return "Welcome back, here's what's happening today.";
-    if (this.currentTab === 'users') return 'Manage system users and access levels.';
-    if (this.currentTab === 'stores') return 'Manage marketplace stores and operations.';
-    if (this.currentTab === 'categories') return 'Manage product categories shown across the shop.';
-    if (this.currentTab === 'comparison') return 'Compare store revenue, order volume, and average rating.';
+    const tab = this.currentTab();
+    if (tab === 'dashboard') return "Welcome back, here's what's happening today.";
+    if (tab === 'users') return 'Manage system users and access levels.';
+    if (tab === 'stores') return 'Manage marketplace stores and operations.';
+    if (tab === 'categories') return 'Manage product categories shown across the shop.';
+    if (tab === 'comparison') return 'Compare store revenue, order volume, and average rating.';
     return '';
   }
 
@@ -97,6 +101,7 @@ export class AdminDashboard implements OnInit {
         console.error('Failed to fetch store comparison', err);
         this.comparisonError = 'Could not load store comparison data.';
         this.comparisonLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -146,6 +151,7 @@ export class AdminDashboard implements OnInit {
         console.error('Failed to fetch categories', err);
         this.categoryError = 'Could not load categories.';
         this.categoriesLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -193,11 +199,13 @@ export class AdminDashboard implements OnInit {
         this.categorySuccess = this.isCategoryEditMode ? 'Category updated.' : 'Category added.';
         this.isSavingCategory = false;
         this.loadCategories();
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Failed to save category', err);
         this.categoryError = 'Could not save category. Backend category create/update support may be missing.';
         this.isSavingCategory = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -225,50 +233,124 @@ export class AdminDashboard implements OnInit {
         this.categorySuccess = 'Category deleted.';
         this.isDeletingCategory = false;
         this.loadCategories();
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Failed to delete category', err);
         this.categoryError = 'Could not delete category. Backend category delete support may be missing.';
         this.isDeletingCategory = false;
+        this.cdr.detectChanges();
       }
     });
   }
 
   loadStores() {
+    this.storesLoading = true;
+    this.storesError = '';
     this.storeService.getStores().subscribe({
-      next: (stores) => this.stores = stores,
-      error: (err) => console.error('Failed to fetch stores', err)
+      next: (stores) => {
+        this.stores = stores;
+        this.storesLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to fetch stores', err);
+        this.storesError = 'Could not load stores.';
+        this.storesLoading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 
   toggleStoreStatus(store: any) {
     const newStatus = store.status === 'OPEN' ? 'CLOSED' : 'OPEN';
     this.storeService.updateStoreStatus(store.id, newStatus).subscribe({
-      next: (updatedStore) => store.status = updatedStore.status,
-      error: (err) => console.error('Failed to update store status', err)
+      next: (updatedStore) => {
+        store.status = updatedStore.status;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to update store status', err);
+        this.cdr.detectChanges();
+      }
     });
   }
 
-  loadUsers() {
-    this.userService.getUsers().subscribe({
-      next: (users) => this.users = users,
-      error: (err) => console.error('Failed to fetch users', err)
+  loadUsers(page = this.usersPage) {
+    this.usersLoading = true;
+    this.usersError = '';
+    this.usersPage = Math.max(page, 0);
+
+    this.userService.getUsers(this.usersPage, this.usersPageSize).subscribe({
+      next: (response) => {
+        this.users = response.content;
+        this.usersPage = response.number;
+        this.usersPageSize = response.size;
+        this.usersTotalPages = response.totalPages;
+        this.usersTotalElements = response.totalElements;
+        this.usersLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to fetch users', err);
+        this.users = [];
+        this.usersError = 'Could not load users.';
+        this.usersLoading = false;
+        this.cdr.detectChanges();
+      }
     });
+  }
+
+  changeUsersPageSize(size: number | string) {
+    this.usersPageSize = Number(size);
+    this.loadUsers(0);
+  }
+
+  goToUsersPage(page: number) {
+    if (this.usersLoading || page < 0 || page >= this.usersTotalPages || page === this.usersPage) return;
+    this.loadUsers(page);
+  }
+
+  getUsersStart(): number {
+    if (this.usersTotalElements === 0) return 0;
+    return this.usersPage * this.usersPageSize + 1;
+  }
+
+  getUsersEnd(): number {
+    return Math.min((this.usersPage + 1) * this.usersPageSize, this.usersTotalElements);
   }
 
   toggleSuspend(user: any) {
-    const newStatus = !user.isSuspended;
+    const newStatus = user.active;
     this.userService.suspendUser(user.id, newStatus).subscribe({
-      next: () => user.isSuspended = newStatus,
-      error: (err) => console.error('Failed to suspend user', err)
+      next: (updatedUser) => {
+        user.active = updatedUser.active;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to suspend user', err);
+        this.cdr.detectChanges();
+      }
     });
   }
 
   deleteUser(id: string) {
     if(confirm('Are you sure you want to delete this user?')) {
       this.userService.deleteUser(id).subscribe({
-        next: () => this.users = this.users.filter(u => u.id !== id),
-        error: (err) => console.error('Failed to delete user', err)
+        next: () => {
+          this.users = this.users.filter(u => u.id !== id);
+          this.usersTotalElements = Math.max(this.usersTotalElements - 1, 0);
+          this.usersTotalPages = Math.ceil(this.usersTotalElements / this.usersPageSize);
+          if (this.users.length === 0 && this.usersPage > 0) {
+            this.loadUsers(this.usersPage - 1);
+            return;
+          }
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Failed to delete user', err);
+          this.cdr.detectChanges();
+        }
       });
     }
   }
@@ -278,7 +360,10 @@ export class AdminDashboard implements OnInit {
       next: (data) => {
         this.updateDashboard(data);
       },
-      error: (err) => console.error('Failed to fetch analytics', err)
+      error: (err) => {
+        console.error('Failed to fetch analytics', err);
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -403,4 +488,19 @@ export class AdminDashboard implements OnInit {
     { title: 'Active Users', value: 'Loading...', icon: 'group', trend: '...', positive: true },
     { title: 'Pending Shipments', value: 'Loading...', icon: 'local_shipping', trend: '...', positive: false }
   ];
+
+  private refreshTab(tab: string) {
+    this.tabRefresh.update(current => ({ tab, tick: current.tick + 1 }));
+    if (tab === 'dashboard') {
+      this.fetchAnalytics();
+    } else if (tab === 'users') {
+      this.loadUsers();
+    } else if (tab === 'stores') {
+      this.loadStores();
+    } else if (tab === 'categories') {
+      this.loadCategories();
+    } else if (tab === 'comparison') {
+      this.loadStoreComparison();
+    }
+  }
 }

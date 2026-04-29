@@ -3,6 +3,8 @@ package com.ecommerce.analytics_backend.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +21,11 @@ public class UserService {
     @Transactional(readOnly = true)
     public List<User> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<User> getUsers(Pageable pageable) {
+        return userRepository.findAll(pageable);
     }
 
     @Transactional(readOnly = true)
@@ -46,7 +53,7 @@ public class UserService {
     public User suspendUser(String id, boolean suspend) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found: " + id));
-        user.setIsActive(false);
+        user.setIsActive(!suspend);
         return userRepository.save(user);
     }
 }

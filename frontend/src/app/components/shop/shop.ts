@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -29,13 +29,18 @@ export class Shop implements OnInit {
   searchQuery: string = '';
   sortOption: string = '';
 
+  private productRefresh = signal(0);
+  private hasRouteState = false;
+  private lastQueryParamKey = '';
+
   constructor(
     private productService: ProductService,
     private categoryService: CategoryService,
     private cartService: CartService,
     private toastService: ToastService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   addToCart(product: Product, event: Event) {
@@ -48,10 +53,12 @@ export class Shop implements OnInit {
     this.categoryService.getCategories().subscribe({
       next: (cats) => {
         this.categories = cats;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error fetching categories', err);
         this.categoriesError = 'Categories could not be loaded.';
+        this.cdr.detectChanges();
       }
     });
 
@@ -60,7 +67,9 @@ export class Shop implements OnInit {
       this.searchQuery = params['search'] || '';
       this.sortOption = params['sort'] || '';
       this.currentPage = params['page'] ? parseInt(params['page'], 10) : 0;
-      this.loadProducts();
+      this.lastQueryParamKey = this.getQueryParamKey(this.buildQueryParams());
+      this.hasRouteState = true;
+      this.refreshProducts();
     });
   }
 
@@ -95,6 +104,7 @@ export class Shop implements OnInit {
         this.totalElements = response.totalElements;
         this.isLoading = false;
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error fetching products', err);
@@ -103,18 +113,25 @@ export class Shop implements OnInit {
         this.totalElements = 0;
         this.errorMessage = 'Products could not be loaded. Please try again.';
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
 
   updateFilters() {
-    const queryParams: any = {};
-    if (this.selectedCategoryId) queryParams.categoryId = this.selectedCategoryId;
-    if (this.searchQuery) queryParams.search = this.searchQuery;
-    if (this.sortOption) queryParams.sort = this.sortOption;
-    if (this.currentPage > 0) queryParams.page = this.currentPage;
+    const queryParams = this.buildQueryParams();
+    const nextQueryParamKey = this.getQueryParamKey(queryParams);
 
-    this.router.navigate(['/products'], { queryParams });
+    if (nextQueryParamKey === this.lastQueryParamKey) {
+      this.refreshProducts();
+      return;
+    }
+
+    this.router.navigate(['/products'], { queryParams }).then((navigated) => {
+      if (!navigated) {
+        this.refreshProducts();
+      }
+    });
   }
 
   onSearch() {
@@ -155,5 +172,32 @@ export class Shop implements OnInit {
       pages.push(i);
     }
     return pages;
+  }
+
+  private refreshProducts() {
+    this.productRefresh.update(count => count + 1);
+    if (this.hasRouteState) {
+      this.loadProducts();
+    }
+  }
+
+  private buildQueryParams(): Record<string, string | number> {
+    const queryParams: Record<string, string | number> = {};
+    if (this.selectedCategoryId) queryParams['categoryId'] = this.selectedCategoryId;
+    if (this.searchQuery) queryParams['search'] = this.searchQuery;
+    if (this.sortOption) queryParams['sort'] = this.sortOption;
+    if (this.currentPage > 0) queryParams['page'] = this.currentPage;
+    return queryParams;
+  }
+
+  private getQueryParamKey(queryParams: Record<string, unknown>): string {
+    return JSON.stringify(
+      Object.keys(queryParams)
+        .sort()
+        .reduce((normalized, key) => {
+          normalized[key] = queryParams[key];
+          return normalized;
+        }, {} as Record<string, unknown>)
+    );
   }
 }

@@ -38,7 +38,8 @@ public class User implements UserDetails {
 
     private String gender;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private CustomerProfile profile;
 
     // --- UserDetails Methods for Spring Security ---

@@ -11,6 +11,7 @@ public class UserResponseDTO {
     private String id;
     private String email;
     private String roleType;
+    private boolean active;
 
     public String getId() {
         return id;
@@ -34,5 +35,13 @@ public class UserResponseDTO {
 
     public void setRoleType(String roleType) {
         this.roleType = roleType;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

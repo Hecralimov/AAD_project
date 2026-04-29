@@ -17,28 +17,54 @@ public class CustomerProfileService {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
-    public CustomerProfile getProfile(String email) {
+    public CustomerProfileDTO getProfile(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        return profileRepository.findByUserId(user.getId())
-                .orElse(CustomerProfile.builder().user(user).build()); // Return empty shell if none exists
+        CustomerProfile profile = profileRepository.findByUserId(user.getId()).orElse(null);
+        return toDto(user, profile);
     }
 
     @Transactional
-    public CustomerProfile upsertProfile(String email, CustomerProfileDTO dto) {
+    public CustomerProfileDTO upsertProfile(String email, CustomerProfileDTO dto) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         CustomerProfile profile = profileRepository.findByUserId(user.getId())
                 .orElse(CustomerProfile.builder().user(user).build());
 
-        profile.setFullName(dto.getFullName());
-        profile.setPhoneNumber(dto.getPhoneNumber());
-        profile.setAddressLine(dto.getAddressLine());
-        profile.setCity(dto.getCity());
-        profile.setCountry(dto.getCountry());
+        if (dto.getFullName() != null) {
+            profile.setFullName(dto.getFullName());
+        }
+        if (dto.getPhoneNumber() != null) {
+            profile.setPhoneNumber(dto.getPhoneNumber());
+        }
+        if (dto.getAddressLine() != null) {
+            profile.setAddressLine(dto.getAddressLine());
+        }
+        if (dto.getCity() != null) {
+            profile.setCity(dto.getCity());
+        }
+        if (dto.getCountry() != null) {
+            profile.setCountry(dto.getCountry());
+        }
 
-        return profileRepository.save(profile);
+        return toDto(user, profileRepository.save(profile));
+    }
+
+    private CustomerProfileDTO toDto(User user, CustomerProfile profile) {
+        CustomerProfileDTO dto = new CustomerProfileDTO();
+        if (profile != null) {
+            dto.setId(profile.getId());
+            dto.setFullName(profile.getFullName());
+            dto.setPhoneNumber(profile.getPhoneNumber());
+            dto.setAddressLine(profile.getAddressLine());
+            dto.setCity(profile.getCity());
+            dto.setCountry(profile.getCountry());
+        }
+        dto.setEmail(user.getEmail());
+        dto.setRoleType(user.getRoleType());
+        dto.setActive(user.isEnabled());
+        return dto;
     }
 }

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -18,7 +18,11 @@ export class Login {
   isLoading = false;
   showPassword = false;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
@@ -47,11 +51,13 @@ export class Login {
           this.router.navigate(['/individual']);
         }
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Login failed', err);
         this.errorMessage = 'Invalid email or password.';
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
     });
   }
