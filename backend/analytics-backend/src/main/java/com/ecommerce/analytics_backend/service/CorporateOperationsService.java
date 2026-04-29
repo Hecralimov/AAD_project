@@ -73,9 +73,9 @@ public class CorporateOperationsService {
     }
 
     // A13: Get Store Orders
-    public List<Order> getStoreOrders(String ownerId) {
+    public List<Order> getStoreOrders(String ownerId, Pageable pageable) {
         Store store = getValidStore(ownerId);
-        return orderRepository.findByStoreIdOrderByCreatedAtDesc(store.getId());
+        return orderRepository.findByStoreIdOrderByCreatedAtDesc(store.getId(), pageable);
     }
 
     // A13: Update Order Status

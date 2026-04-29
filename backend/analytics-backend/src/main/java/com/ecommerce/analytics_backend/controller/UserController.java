@@ -28,22 +28,20 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable String id) {
+    public ResponseEntity<User> getUserById(@PathVariable String id) {
         return userService.getUserById(id)
-                .map(u -> ResponseEntity.ok(new UserResponseDTO(u.getId(), u.getEmail(), u.getRoleType())))
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<UserResponseDTO> createUser(@RequestBody User user) {
-        User u = userService.createUser(user);
-        return ResponseEntity.ok(new UserResponseDTO(u.getId(), u.getEmail(), u.getRoleType()));
+    public ResponseEntity<User> createUser(@RequestBody User user) {
+        return ResponseEntity.ok(userService.createUser(user));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponseDTO> updateUser(@PathVariable String id, @RequestBody User user) {
-        User u = userService.updateUser(id, user);
-        return ResponseEntity.ok(new UserResponseDTO(u.getId(), u.getEmail(), u.getRoleType()));
+    public ResponseEntity<User> updateUser(@PathVariable String id, @RequestBody User user) {
+        return ResponseEntity.ok(userService.updateUser(id, user));
     }
 
     @DeleteMapping("/{id}")
