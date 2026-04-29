@@ -33,6 +33,14 @@ public class CategoryService {
     }
 
     @Transactional
+    public Category updateCategory(String id, Category updatedCategory) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+        category.setName(updatedCategory.getName());
+        return categoryRepository.save(category);
+    }
+
+    @Transactional
     public void deleteCategory(String id) {
         categoryRepository.deleteById(id);
     }
