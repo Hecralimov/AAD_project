@@ -74,9 +74,11 @@ public class CorporateOperationsController {
 
     // A13: Fetch Orders
     @GetMapping("/orders")
-    public ResponseEntity<List<Order>> getOrders(Principal principal) {
+    public ResponseEntity<List<Order>> getOrders(Principal principal,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
         User user = getCurrentCorporateUser(principal);
-        return ResponseEntity.ok(corporateService.getStoreOrders(user.getId()));
+        return ResponseEntity.ok(corporateService.getStoreOrders(user.getId(), PageRequest.of(page, size)));
     }
 
     // A13: Fulfill/Update Order Status
