@@ -63,6 +63,7 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/analytics/corporate/**").hasRole("CORPORATE")
                         .requestMatchers(HttpMethod.GET, "/api/analytics/individual/**").hasRole("INDIVIDUAL")
+                        .requestMatchers("/api/assistant/**").authenticated()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

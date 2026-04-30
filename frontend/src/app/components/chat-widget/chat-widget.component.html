@@ -1,0 +1,56 @@
+<div class="chat-widget-container" [ngClass]="{'open': isOpen()}">
+  <!-- Launcher Button -->
+  <button class="chat-launcher" (click)="toggleWidget()">
+    <span *ngIf="!isOpen()">💬</span>
+    <span *ngIf="isOpen()">✕</span>
+  </button>
+
+  <!-- Chat Panel -->
+  <div class="chat-panel" *ngIf="isOpen()">
+    <div class="chat-header">
+      <h3>AI Purchase Assistant</h3>
+    </div>
+    
+    <div class="chat-messages">
+      <div *ngIf="messages().length === 0" class="empty-state">
+        <p>Hi! I can help you find products or reorder past purchases. How can I assist you today?</p>
+      </div>
+
+      <div *ngFor="let msg of messages()" class="message-wrapper" [ngClass]="msg.role">
+        <div class="message-bubble">
+          {{ msg.content }}
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="message-actions" *ngIf="msg.actions && msg.actions.length > 0">
+          <button *ngFor="let action of msg.actions" 
+                  class="action-btn"
+                  (click)="applyAction(action, msg.referencedProducts)">
+            {{ action.label }}
+          </button>
+        </div>
+
+        <!-- Visualization -->
+        <app-chat-visualization 
+          *ngIf="msg.visualizationCode" 
+          [code]="msg.visualizationCode">
+        </app-chat-visualization>
+      </div>
+
+      <div *ngIf="isLoading()" class="message-wrapper assistant">
+        <div class="message-bubble loading">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <input type="text" 
+             [(ngModel)]="userInput" 
+             (keyup.enter)="sendMessage()"
+             placeholder="Type your message..."
+             [disabled]="isLoading()">
+      <button (click)="sendMessage()" [disabled]="isLoading() || !userInput().trim()">Send</button>
+    </div>
+  </div>
+</div>

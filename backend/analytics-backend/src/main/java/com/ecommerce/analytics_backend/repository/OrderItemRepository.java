@@ -22,4 +22,8 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, String> {
 
     @Query("SELECT COUNT(oi) FROM OrderItem oi WHERE oi.productId = :productId AND oi.orderId IN (SELECT o.id FROM Order o WHERE o.userId = :userId)")
     Long countUserPurchasesOfProduct(@Param("userId") String userId, @Param("productId") String productId);
+
+    List<OrderItem> findByOrderId(String orderId);
+    
+    List<OrderItem> findByOrderIdIn(List<String> orderIds);
 }
