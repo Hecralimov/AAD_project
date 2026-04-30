@@ -1,5 +1,4 @@
 package com.ecommerce.analytics_backend.controller;
-
 import com.ecommerce.analytics_backend.dto.UserResponseDTO;
 import com.ecommerce.analytics_backend.model.User;
 import com.ecommerce.analytics_backend.service.UserService;
